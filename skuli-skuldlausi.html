@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skúli skuldlausi</title>
+  <style>
+    :root {
+      --bb-blue: #003566;
+      --bb-green: #274E13;
+      --bb-yellow: #F5CC00;
+      --bb-purple: #741B47;
+      --bb-dark: #343A40;
+      --bb-pink: #FFCAE4;
+      --bb-violet: #8C52FF;
+      --bg: #f3f8ff;
+      --card: rgba(255,255,255,0.92);
+      --shadow: 0 18px 45px rgba(0, 53, 102, 0.15);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(245, 204, 0, 0.22), transparent 20%),
+        radial-gradient(circle at bottom left, rgba(140, 82, 255, 0.14), transparent 20%),
+        linear-gradient(180deg, #f9fcff 0%, #eef5ff 100%);
+      color: var(--bb-blue);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+    }
+
+    .app {
+      width: min(100%, 1100px);
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .panel,
+    .game-shell {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0, 53, 102, 0.08);
+    }
+
+    .panel {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      line-height: 1;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--bb-dark);
+      line-height: 1.45;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat {
+      border-radius: 18px;
+      padding: 14px;
+      color: white;
+      min-height: 96px;
+    }
+
+    .stat h2 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .blue { background: linear-gradient(135deg, var(--bb-blue), #0a5c9f); }
+    .green { background: linear-gradient(135deg, var(--bb-green), #4f8d2d); }
+    .yellow { background: linear-gradient(135deg, #d9aa00, var(--bb-yellow)); color: #2d2d2d; }
+    .purple { background: linear-gradient(135deg, var(--bb-purple), var(--bb-violet)); }
+
+    .meter {
+      background: #e4eef8;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 16px;
+      position: relative;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--bb-green), #65b741);
+      transition: width 0.2s ease;
+      border-radius: 999px;
+    }
+
+    .meter-label {
+      font-size: 0.92rem;
+      margin-top: 8px;
+      color: var(--bb-dark);
+      line-height: 1.4;
+    }
+
+    .message-box {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255, 202, 228, 0.45), rgba(245, 204, 0, 0.18));
+      color: var(--bb-blue);
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .controls {
+      font-size: 0.95rem;
+      color: var(--bb-dark);
+      line-height: 1.55;
+      background: rgba(0,53,102,0.04);
+      padding: 14px;
+      border-radius: 18px;
+    }
+
+    .controls strong { color: var(--bb-blue); }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(1px); }
+
+    .primary-btn {
+      background: var(--bb-blue);
+      color: white;
+      box-shadow: 0 12px 24px rgba(0,53,102,0.24);
+    }
+
+    .secondary-btn {
+      background: white;
+      color: var(--bb-blue);
+      border: 2px solid rgba(0,53,102,0.12);
+    }
+
+    .game-shell {
+      padding: 16px;
+      position: relative;
+      min-height: 720px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 6px 16px;
+      flex-wrap: wrap;
+    }
+
+    .top-bar .chip {
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      background: rgba(0, 53, 102, 0.06);
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 640px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #eff7ff 100%);
+      border: 2px solid rgba(0,53,102,0.08);
+      touch-action: none;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      background: rgba(255,255,255,0.74);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .overlay-card {
+      max-width: 520px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,53,102,0.08);
+    }
+
+    .overlay-card h2 {
+      margin: 0 0 10px;
+      color: var(--bb-blue);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+    }
+
+    .overlay-card p {
+      margin: 0 0 16px;
+      color: var(--bb-dark);
+      line-height: 1.55;
+    }
+
+    @media (max-width: 920px) {
+      .app { grid-template-columns: 1fr; }
+      .game-shell { min-height: auto; }
+      .canvas-wrap { height: min(72vh, 620px); }
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 10px; }
+      .panel, .game-shell { border-radius: 18px; }
+      .panel { padding: 16px; }
+      .game-shell { padding: 10px; }
+      .canvas-wrap { height: 72vh; border-radius: 18px; }
+      .stat-grid { grid-template-columns: 1fr; }
+      .top-bar { padding-bottom: 10px; }
+      .top-bar .chip { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel" aria-label="Upplýsingar um leikinn">
+      <div>
+        <h1>Skúli skuldlausi</h1>
+        <p class="subtitle">Léttur og skemmtilegur leikur þar sem þú safnar sparnaði, kemur þér upp neyðarsjóði og forðast neyslulán.</p>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat blue">
+          <h2>Heildarsparnaður</h2>
+          <div id="totalSavings" class="stat-value">0 kr.</div>
+        </div>
+        <div class="stat green">
+          <h2>Neyðarsjóður</h2>
+          <div id="emergencySavings" class="stat-value">0 / 100.000 kr.</div>
+        </div>
+        <div class="stat yellow">
+          <h2>Umframsparnaður</h2>
+          <div id="extraSavings" class="stat-value">0 kr.</div>
+        </div>
+        <div class="stat purple">
+          <h2>Líf eftir</h2>
+          <div id="lives" class="stat-value">3</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="meter"><div id="fundMeter" class="meter-fill"></div></div>
+        <div id="meterLabel" class="meter-label">Markmið: byggja neyðarsjóð upp í 100.000 kr. áður en umframsparnaður byrjar að safnast.</div>
+      </div>
+
+      <div id="messageBox" class="message-box">
+        Jæja, hefjumst nú handa! Gríptu krónurnar, forðastu skuldir og hjálpaðu Skúla að hafa það betra fjárhagslega.
+      </div>
+
+      <div class="controls">
+        <strong>Stýring:</strong> Færðu Skúla með mús, fingri eða örvatökkum. <br>
+        <strong>Markmið:</strong> Safna krónum í neyðarsjóð og svo umframsparnað. <br>
+        <strong>Forðastu:</strong> Greiðsludreifingu, yfirdrátt, smálán, kaupa núna, borga síðar og bílalán. Tapast 3 líf þá lýkur leiknum.
+      </div>
+
+      <div class="btn-row">
+        <button id="startBtn" class="primary-btn">Hefja leik</button>
+        <button id="restartBtn" class="secondary-btn">Byrja upp á nýtt</button>
+      </div>
+    </section>
+
+    <section class="game-shell">
+      <div class="top-bar">
+        <div id="speedChip" class="chip">Hraði: 1</div>
+        <div id="statusChip" class="chip">Staða: Að byggja neyðarsjóð</div>
+      </div>
+
+      <div id="canvasWrap" class="canvas-wrap">
+        <canvas id="gameCanvas" width="760" height="640" aria-label="Leiksvæði"></canvas>
+        <div id="startOverlay" class="overlay">
+          <div class="overlay-card">
+            <h2>Hjálpaðu Skúla við að hafa það betra</h2>
+            <p>Gríptu krónurnar til að byggja neyðarsjóðinn upp í 100.000 kr. Eftir það breytist hver safnað króna í umframsparnað. Passaðu þig á skuldunum!</p>
+            <button id="overlayStartBtn" class="primary-btn">Spila núna</button>
+          </div>
+        </div>
+        <div id="gameOverOverlay" class="overlay hidden">
+          <div class="overlay-card">
+            <h2>Leik lokið</h2>
+            <p id="gameOverText"></p>
+            <button id="overlayRestartBtn" class="primary-btn">Spila aftur</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const canvasWrap = document.getElementById('canvasWrap');
+
+      const totalSavingsEl = document.getElementById('totalSavings');
+      const emergencySavingsEl = document.getElementById('emergencySavings');
+      const extraSavingsEl = document.getElementById('extraSavings');
+      const livesEl = document.getElementById('lives');
+      const fundMeterEl = document.getElementById('fundMeter');
+      const meterLabelEl = document.getElementById('meterLabel');
+      const messageBoxEl = document.getElementById('messageBox');
+      const speedChipEl = document.getElementById('speedChip');
+      const statusChipEl = document.getElementById('statusChip');
+      const startOverlay = document.getElementById('startOverlay');
+      const gameOverOverlay = document.getElementById('gameOverOverlay');
+      const gameOverText = document.getElementById('gameOverText');
+
+      const startBtn = document.getElementById('startBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const overlayStartBtn = document.getElementById('overlayStartBtn');
+      const overlayRestartBtn = document.getElementById('overlayRestartBtn');
+
+      const palette = {
+        blue: '#003566',
+        green: '#274E13',
+        yellow: '#F5CC00',
+        purple: '#741B47',
+        dark: '#343A40',
+        pink: '#FFCAE4',
+        violet: '#8C52FF',
+        white: '#FFFFFF',
+        red: '#c63d3d'
+      };
+
+      const emergencyTarget = 100000;
+      const coinValues = [1000, 5000, 10000];
+      const debtTypes = [
+        { name: 'Greiðsludreifing', color: '#741B47' },
+        { name: 'Yfirdráttur', color: '#c63d3d' },
+        { name: 'Kaupa núna, borga síðar', color: '#0a5c9f' },
+        { name: 'Smálán', color: '#343A40' },
+        { name: 'Bílalán', color: '#8C52FF' }
+      ];
+
+      const positiveMessages = [
+        'Vel gert! Þú bættir {amount} við neyðarsjóðinn, jókst öryggi þitt og dróst úr líkum á skuldasöfnun.',
+        'Frábært! Sparnaður gerir okkur kleift að takast betur á við sveiflur og eykir fyrirsjáanleika í heimilisbókhaldinu.',
+        'Vel gert! Hver króna í varasjóð getur hjálpað þér að forðast rándýr neyslulán þegar eitthvað kemur upp á.',
+        'Þarna þekki ég þig! Hver króna skiptir máli!'
+      ];
+
+      const extraMessages = [
+        'Glæsilegt! Nú ætti Skúli að vera kominn með þokkalegan neyðarsjóð og fer að safna fyrir því sem framundan er!',
+        'Vel gert! Er þetta kannski sparnaður fyrir jólum eða ferðalögum?',
+        'Snilld! Umframsparnaður eykur sveigjanleika, en það er gott að honum fylgi sparnaðarmarkmið.',
+        'Sterkt! Nú er neyðarsjóðurinn klár og sparnaður farinn að hrannast upp'
+      ];
+
+      const warningMessages = {
+        'Greiðsludreifing': 'Varúð — greiðsludreifing getur gert kaup miklu dýrari en þau virðast í fyrstu.',
+        'Yfirdráttur': 'Varúð — yfirdráttur getur verið afar dýr ef illa gengur að hrista hann af sér.',
+        'Smálán': 'Varúð - neyslulán kosta kannski meira en þú heldur. Hefur þú litið á árlega hlutfallstölu kostnaðar (ÁHK) lána?',
+        'Kaupa núna, borga síðar': 'Varúð — að kaupa núna og borga síðar getur auðveldlega leitt til skulda sem safnast hratt upp.',
+        'Bílalán': 'Ekki taka lán fyrir bíl. Safnaðu frekar með reglubundnum hætti svo hægt sé að staðgreiða hentuga bifreið. Of dýrir bílar geta verið ein helsta fyrirstaða þess að við getum náð okkar fjárhagslegu markmiðum.'
+      };
+
+      const tips = [
+        'Með því að greiða aukalega inn á lán getur þú bæði sparað þér stórfé og stytt lánstímann.',
+        'Neyðarsjóður getur hjálpað þér að takast á við óvænt útgjöld án þess að grípa í rándýr neyslulán.',
+        'Það er bara ein töfralausn í sparnaði: Að hann sé sjálfvirkur og reglulegur.',
+        'Sólarhringsreglan getur reynst vel til að hemja hvatvís innkaup. Ekki kaupa þessi föt strax, líttu aftur á þau á morgun.'
+      ];
+
+      const state = {
+        running: false,
+        gameOver: false,
+        lastTimestamp: 0,
+        spawnTimer: 0,
+        elapsed: 0,
+        items: [],
+        totalSavings: 0,
+        emergencySavings: 0,
+        extraSavings: 0,
+        lives: 3,
+        level: 1,
+        keys: { left: false, right: false },
+        player: {
+          x: 0,
+          y: 0,
+          width: 92,
+          height: 92,
+          speed: 500
+        }
+      };
+
+      function resizeCanvas() {
+        const rect = canvasWrap.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(rect.width * ratio);
+        canvas.height = Math.floor(rect.height * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        state.player.y = rect.height - state.player.height - 18;
+        state.player.x = Math.min(state.player.x || (rect.width - state.player.width) / 2, rect.width - state.player.width);
+      }
+
+      function formatISK(value) {
+        return new Intl.NumberFormat('is-IS').format(value) + ' kr.';
+      }
+
+      function setMessage(text) {
+        messageBoxEl.textContent = text;
+      }
+
+      function randomFrom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      function updateHud() {
+        totalSavingsEl.textContent = formatISK(state.totalSavings);
+        emergencySavingsEl.textContent = `${new Intl.NumberFormat('is-IS').format(state.emergencySavings)} / ${new Intl.NumberFormat('is-IS').format(emergencyTarget)} kr.`;
+        extraSavingsEl.textContent = formatISK(state.extraSavings);
+        livesEl.textContent = String(state.lives);
+
+        const progress = Math.min(100, (state.emergencySavings / emergencyTarget) * 100);
+        fundMeterEl.style.width = progress + '%';
+        speedChipEl.textContent = `Hraði: ${state.level}`;
+
+        if (state.emergencySavings >= emergencyTarget) {
+          meterLabelEl.textContent = 'Neyðarsjóður kominn í 100.000 kr. Allt sem þú safnar núna er umframsparnaður.';
+          statusChipEl.textContent = 'Staða: Umframsparnaður í gangi';
+        } else {
+          meterLabelEl.textContent = 'Markmið: byggja neyðarsjóð upp í 100.000 kr. áður en umframsparnaður byrjar að safnast.';
+          statusChipEl.textContent = 'Staða: Að byggja neyðarsjóð';
+        }
+      }
+
+      function createCoin() {
+        const value = randomFrom(coinValues);
+        const width = value === 10000 ? 74 : value === 5000 ? 68 : 62;
+        const rect = canvasWrap.getBoundingClientRect();
+        return {
+          kind: 'coin',
+          value,
+          x: Math.random() * Math.max(20, rect.width - width - 10),
+          y: -90,
+          width,
+          height: width,
+          speed: 140 + Math.random() * 90 + state.level * 18,
+          color: value === 10000 ? '#f5cc00' : value === 5000 ? '#ffd95a' : '#ffe88f'
+        };
+      }
+
+      function createDebt() {
+        const debt = randomFrom(debtTypes);
+        const width = debt.name.length > 18 ? 150 : 124;
+        const height = debt.name.length > 18 ? 62 : 52;
+        const rect = canvasWrap.getBoundingClientRect();
+        return {
+          kind: 'debt',
+          label: debt.name,
+          debtName: debt.name,
+          x: Math.random() * Math.max(20, rect.width - width - 10),
+          y: -90,
+          width,
+          height,
+          speed: 170 + Math.random() * 110 + state.level * 22,
+          color: debt.color
+        };
+      }
+
+      function spawnItem() {
+        const isCoin = Math.random() < 0.72;
+        state.items.push(isCoin ? createCoin() : createDebt());
+      }
+
+      function awardCoin(item) {
+        state.totalSavings += item.value;
+        if (state.emergencySavings < emergencyTarget) {
+          const needed = emergencyTarget - state.emergencySavings;
+          const toEmergency = Math.min(needed, item.value);
+          state.emergencySavings += toEmergency;
+          const overflow = item.value - toEmergency;
+          if (overflow > 0) state.extraSavings += overflow;
+          setMessage((overflow > 0 ? randomFrom(extraMessages) : randomFrom(positiveMessages)).replace('{amount}', formatISK(item.value)));
+        } else {
+          state.extraSavings += item.value;
+          setMessage(randomFrom(extraMessages));
+        }
+        updateHud();
+      }
+
+      function hitDebt(item) {
+        state.lives -= 1;
+        setMessage(warningMessages[item.debtName] || 'Varúð — þessi skuld getur sett strik í reikninginn.');
+        updateHud();
+        if (state.lives <= 0) endGame();
+      }
+
+      function rectsIntersect(a, b) {
+        return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+      }
+
+      function resetGame() {
+        state.running = false;
+        state.gameOver = false;
+        state.lastTimestamp = 0;
+        state.spawnTimer = 0;
+        state.elapsed = 0;
+        state.items = [];
+        state.totalSavings = 0;
+        state.emergencySavings = 0;
+        state.extraSavings = 0;
+        state.lives = 3;
+        state.level = 1;
+        const rect = canvasWrap.getBoundingClientRect();
+        state.player.x = (rect.width - state.player.width) / 2;
+        state.player.y = rect.height - state.player.height - 18;
+        updateHud();
+        setMessage('Jæja, hefjumst nú handa! Gríptu krónurnar, forðastu skuldir og hjálpaðu Skúla að hafa það betra fjárhagslega.');
+        gameOverOverlay.classList.add('hidden');
+        startOverlay.classList.remove('hidden');
+        draw();
+      }
+
+      function startGame() {
+        if (state.running) return;
+        if (state.gameOver) resetGame();
+        state.running = true;
+        state.gameOver = false;
+        startOverlay.classList.add('hidden');
+        gameOverOverlay.classList.add('hidden');
+        setMessage(randomFrom(tips));
+        requestAnimationFrame(loop);
+      }
+
+      function endGame() {
+        state.running = false;
+        state.gameOver = true;
+        const lokaskilabod = 'Vel gert! Þessar litlu ákvarðanir geta haft risastór áhrif á fjárhaginn þinn. Haltu þig frá skuldum og hafðu það gott!';
+        const summary = `Þú safnaðir samtals ${formatISK(state.totalSavings)}. Þar af fóru ${formatISK(state.emergencySavings)} í neyðarsjóð og ${formatISK(state.extraSavings)} í umframsparnað. ${lokaskilabod}`;
+        gameOverText.textContent = summary;
+        setMessage(lokaskilabod);
+        gameOverOverlay.classList.remove('hidden');
+      }
+
+      function update(dt) {
+        const rect = canvasWrap.getBoundingClientRect();
+        state.elapsed += dt;
+        state.spawnTimer += dt;
+        state.level = Math.min(9, 1 + Math.floor(state.elapsed / 12));
+
+        if (state.keys.left) state.player.x -= state.player.speed * dt;
+        if (state.keys.right) state.player.x += state.player.speed * dt;
+        state.player.x = Math.max(0, Math.min(rect.width - state.player.width, state.player.x));
+
+        const spawnEvery = Math.max(0.38, 0.95 - (state.level - 1) * 0.06);
+        if (state.spawnTimer >= spawnEvery) {
+          state.spawnTimer = 0;
+          spawnItem();
+        }
+
+        for (let i = state.items.length - 1; i >= 0; i--) {
+          const item = state.items[i];
+          item.y += item.speed * dt;
+
+          if (rectsIntersect(item, state.player)) {
+            if (item.kind === 'coin') awardCoin(item);
+            else hitDebt(item);
+            state.items.splice(i, 1);
+            continue;
+          }
+
+          if (item.y > rect.height + 90) state.items.splice(i, 1);
+        }
+      }
+
+      function drawBackground(width, height) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, '#ffffff');
+        gradient.addColorStop(1, '#eef7ff');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 6; i++) {
+          ctx.beginPath();
+          ctx.fillStyle = i % 2 === 0 ? 'rgba(245,204,0,0.09)' : 'rgba(140,82,255,0.08)';
+          ctx.arc((width / 6) * i + 60, 80 + (i % 2) * 40, 36 + (i % 3) * 10, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = 'rgba(0,53,102,0.08)';
+        ctx.fillRect(0, height - 70, width, 70);
+      }
+
+      function drawPlayer() {
+        const p = state.player;
+        const centerX = p.x + p.width / 2;
+        const centerY = p.y + p.height / 2;
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+
+        ctx.fillStyle = 'rgba(0, 53, 102, 0.12)';
+        ctx.beginPath();
+        ctx.ellipse(0, 34, 28, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = palette.blue;
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-10, 20);
+        ctx.lineTo(-14, 42);
+        ctx.moveTo(10, 20);
+        ctx.lineTo(14, 42);
+        ctx.stroke();
+
+        ctx.fillStyle = palette.blue;
+        roundRect(ctx, -20, -4, 40, 30, 12, true);
+
+        ctx.strokeStyle = '#1b4f82';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(-18, 6);
+        ctx.lineTo(-28, 18);
+        ctx.moveTo(18, 6);
+        ctx.lineTo(28, 18);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffd7b3';
+        ctx.beginPath();
+        ctx.arc(0, -18, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = palette.green;
+        ctx.beginPath();
+        ctx.arc(0, -22, 18, Math.PI, 0, false);
+        ctx.fill();
+        roundRect(ctx, -6, -42, 12, 10, 4, true);
+        ctx.fillStyle = '#3b6e20';
+        ctx.beginPath();
+        ctx.ellipse(10, -18, 14, 5, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = palette.dark;
+        ctx.beginPath();
+        ctx.arc(-6, -18, 1.6, 0, Math.PI * 2);
+        ctx.arc(6, -18, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(52,58,64,0.75)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -11, 6, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+
+        ctx.fillStyle = palette.yellow;
+        ctx.beginPath();
+        ctx.arc(0, 10, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = palette.blue;
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('kr', 0, 13);
+
+        ctx.restore();
+      }
+
+      function drawCoin(item) {
+        const cx = item.x + item.width / 2;
+        const cy = item.y + item.height / 2;
+        const r = item.width / 2;
+        ctx.save();
+        const grad = ctx.createRadialGradient(cx - r * 0.25, cy - r * 0.3, r * 0.2, cx, cy, r);
+        grad.addColorStop(0, '#fff7c7');
+        grad.addColorStop(0.45, item.color);
+        grad.addColorStop(1, '#d19b00');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#c48a00';
+        ctx.stroke();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, r - 7, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = palette.blue;
+        ctx.font = `bold ${item.value === 10000 ? 15 : item.value === 5000 ? 14 : 13}px Arial`;
+        ctx.textAlign = 'center';
+        const label = item.value === 1000 ? '1 þús.' : item.value === 5000 ? '5 þús.' : '10 þús.';
+        ctx.fillText(label, cx, cy + 5);
+        ctx.restore();
+      }
+
+      function drawDebt(item) {
+        ctx.save();
+        ctx.fillStyle = item.color;
+        roundRect(ctx, item.x, item.y, item.width, item.height, 18, true);
+        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        roundRect(ctx, item.x + 8, item.y + 8, item.width - 16, item.height - 16, 12, true);
+        ctx.fillStyle = palette.white;
+        ctx.font = item.label.length > 18 ? 'bold 11px Arial' : 'bold 13px Arial';
+        ctx.textAlign = 'center';
+        drawWrappedText(item.label, item.x + item.width / 2, item.y + 24, item.width - 18, 14, 2);
+        ctx.restore();
+      }
+
+      function drawHudOnCanvas(width) {
+        ctx.fillStyle = 'rgba(0,53,102,0.06)';
+        roundRect(ctx, 16, 14, Math.min(width - 32, 340), 42, 16, true);
+        ctx.fillStyle = palette.blue;
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(`Safnað: ${formatISK(state.totalSavings)}`, 30, 40);
+      }
+
+      function draw() {
+        const rect = canvasWrap.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        drawBackground(rect.width, rect.height);
+        drawHudOnCanvas(rect.width);
+        for (const item of state.items) {
+          if (item.kind === 'coin') drawCoin(item);
+          else drawDebt(item);
+        }
+        drawPlayer();
+      }
+
+      function loop(timestamp) {
+        if (!state.running) return;
+        if (!state.lastTimestamp) state.lastTimestamp = timestamp;
+        const dt = Math.min(0.032, (timestamp - state.lastTimestamp) / 1000);
+        state.lastTimestamp = timestamp;
+        update(dt);
+        draw();
+        if (state.running) requestAnimationFrame(loop);
+      }
+
+      function roundRect(ctx, x, y, width, height, radius, fill) {
+        const r = Math.min(radius, width / 2, height / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + width, y, x + width, y + height, r);
+        ctx.arcTo(x + width, y + height, x, y + height, r);
+        ctx.arcTo(x, y + height, x, y, r);
+        ctx.arcTo(x, y, x + width, y, r);
+        ctx.closePath();
+        if (fill) ctx.fill();
+      }
+
+      function drawWrappedText(text, centerX, startY, maxWidth, lineHeight, maxLines = 2) {
+        const words = text.split(' ');
+        const lines = [];
+        let current = '';
+        for (const word of words) {
+          const test = current ? current + ' ' + word : word;
+          if (ctx.measureText(test).width <= maxWidth || !current) current = test;
+          else {
+            lines.push(current);
+            current = word;
+          }
+        }
+        if (current) lines.push(current);
+        lines.slice(0, maxLines).forEach((line, index) => {
+          ctx.fillText(line, centerX, startY + index * lineHeight);
+        });
+      }
+
+      function pointerMove(clientX) {
+        const rect = canvasWrap.getBoundingClientRect();
+        const x = clientX - rect.left - state.player.width / 2;
+        state.player.x = Math.max(0, Math.min(rect.width - state.player.width, x));
+      }
+
+      canvasWrap.addEventListener('mousemove', (e) => pointerMove(e.clientX));
+      canvasWrap.addEventListener('touchstart', (e) => { if (e.touches[0]) pointerMove(e.touches[0].clientX); }, { passive: true });
+      canvasWrap.addEventListener('touchmove', (e) => { if (e.touches[0]) pointerMove(e.touches[0].clientX); }, { passive: true });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') state.keys.left = true;
+        if (e.key === 'ArrowRight') state.keys.right = true;
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowLeft') state.keys.left = false;
+        if (e.key === 'ArrowRight') state.keys.right = false;
+      });
+
+      startBtn.addEventListener('click', startGame);
+      restartBtn.addEventListener('click', resetGame);
+      overlayStartBtn.addEventListener('click', startGame);
+      overlayRestartBtn.addEventListener('click', () => { resetGame(); startGame(); });
+      window.addEventListener('resize', () => { resizeCanvas(); draw(); });
+
+      resizeCanvas();
+      resetGame();
+    })();
+  </script>
+</body>
+</html>
