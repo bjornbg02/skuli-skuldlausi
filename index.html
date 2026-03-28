@@ -4,42 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Skúli skuldlausi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bb-blue: #003566;
+      --bb-blue-2: #0b5fa8;
       --bb-green: #274E13;
+      --bb-green-2: #54a93e;
       --bb-yellow: #F5CC00;
+      --bb-yellow-2: #ffea63;
       --bb-purple: #741B47;
-      --bb-dark: #343A40;
-      --bb-pink: #FFCAE4;
       --bb-violet: #8C52FF;
-      --bg: #f3f8ff;
+      --bb-dark: #1f2a35;
       --card: rgba(255,255,255,0.92);
-      --shadow: 0 18px 45px rgba(0, 53, 102, 0.15);
-      --radius: 22px;
+      --shadow: 0 22px 46px rgba(0, 53, 102, 0.16);
+      --radius: 24px;
     }
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      font-family: Inter, Arial, Helvetica, sans-serif;
+      min-height: 100%;
       background:
-        radial-gradient(circle at top right, rgba(245, 204, 0, 0.22), transparent 20%),
-        radial-gradient(circle at bottom left, rgba(140, 82, 255, 0.14), transparent 20%),
-        linear-gradient(180deg, #f9fcff 0%, #eef5ff 100%);
+        radial-gradient(circle at top right, rgba(245, 204, 0, 0.18), transparent 18%),
+        radial-gradient(circle at bottom left, rgba(140, 82, 255, 0.14), transparent 24%),
+        linear-gradient(180deg, #f6fbff 0%, #eaf3ff 100%);
       color: var(--bb-blue);
-      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    body {
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       padding: 18px;
     }
 
     .app {
-      width: min(100%, 1100px);
+      width: min(1240px, 100%);
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 330px minmax(0, 1fr);
       gap: 18px;
       align-items: stretch;
     }
@@ -47,10 +54,10 @@
     .panel,
     .game-shell {
       background: var(--card);
-      backdrop-filter: blur(10px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       border: 1px solid rgba(0, 53, 102, 0.08);
+      backdrop-filter: blur(10px);
     }
 
     .panel {
@@ -60,17 +67,22 @@
       gap: 18px;
     }
 
+    h1, h2, .pixel, .chip, button, .stat h3 {
+      font-family: 'Silkscreen', monospace;
+      letter-spacing: 0.02em;
+    }
+
     h1 {
-      margin: 0;
-      font-size: clamp(1.9rem, 3vw, 2.6rem);
-      line-height: 1;
+      margin: 0 0 8px;
+      font-size: clamp(1.75rem, 3vw, 2.35rem);
+      line-height: 1.05;
     }
 
     .subtitle {
       margin: 0;
-      font-size: 1rem;
-      color: var(--bb-dark);
-      line-height: 1.45;
+      color: #354455;
+      line-height: 1.5;
+      font-size: 0.98rem;
     }
 
     .stat-grid {
@@ -80,87 +92,106 @@
     }
 
     .stat {
-      border-radius: 18px;
       padding: 14px;
+      border-radius: 18px;
       color: white;
-      min-height: 96px;
+      min-height: 102px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .stat h2 {
-      margin: 0 0 8px;
-      font-size: 0.95rem;
-      font-weight: 700;
+    .stat::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), transparent 55%);
+      pointer-events: none;
+    }
+
+    .stat h3 {
+      margin: 0 0 10px;
+      font-size: 0.7rem;
+      line-height: 1.4;
     }
 
     .stat-value {
-      font-size: 1.45rem;
+      position: relative;
+      z-index: 1;
+      font-size: 1.15rem;
       font-weight: 800;
-      line-height: 1.15;
+      line-height: 1.25;
     }
 
-    .blue { background: linear-gradient(135deg, var(--bb-blue), #0a5c9f); }
-    .green { background: linear-gradient(135deg, var(--bb-green), #4f8d2d); }
-    .yellow { background: linear-gradient(135deg, #d9aa00, var(--bb-yellow)); color: #2d2d2d; }
+    .blue { background: linear-gradient(135deg, var(--bb-blue), var(--bb-blue-2)); }
+    .green { background: linear-gradient(135deg, var(--bb-green), var(--bb-green-2)); }
+    .yellow { background: linear-gradient(135deg, #dca900, var(--bb-yellow)); color: #2f2f2f; }
     .purple { background: linear-gradient(135deg, var(--bb-purple), var(--bb-violet)); }
 
+    .meter-wrap {
+      background: rgba(0,53,102,0.05);
+      padding: 14px;
+      border-radius: 18px;
+    }
+
     .meter {
-      background: #e4eef8;
+      height: 18px;
       border-radius: 999px;
       overflow: hidden;
-      height: 16px;
-      position: relative;
+      background: #dbe7f2;
+      box-shadow: inset 0 3px 8px rgba(0,0,0,0.08);
     }
 
     .meter-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, var(--bb-green), #65b741);
+      background: linear-gradient(90deg, #3f8d2e, #78cf55);
       transition: width 0.2s ease;
-      border-radius: 999px;
+      border-radius: inherit;
     }
 
     .meter-label {
-      font-size: 0.92rem;
       margin-top: 8px;
-      color: var(--bb-dark);
-      line-height: 1.4;
+      font-size: 0.93rem;
+      color: #415364;
+      line-height: 1.45;
+    }
+
+    .message-box, .controls {
+      border-radius: 18px;
+      padding: 14px 16px;
+      line-height: 1.5;
+      color: #23313f;
     }
 
     .message-box {
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, rgba(255, 202, 228, 0.45), rgba(245, 204, 0, 0.18));
-      color: var(--bb-blue);
-      min-height: 110px;
+      min-height: 120px;
       display: flex;
       align-items: center;
-      line-height: 1.45;
-      font-weight: 600;
+      font-weight: 700;
+      background: linear-gradient(135deg, rgba(255, 233, 99, 0.22), rgba(140, 82, 255, 0.10));
+      border: 1px solid rgba(0,53,102,0.08);
     }
 
     .controls {
-      font-size: 0.95rem;
-      color: var(--bb-dark);
-      line-height: 1.55;
-      background: rgba(0,53,102,0.04);
-      padding: 14px;
-      border-radius: 18px;
+      background: rgba(0,53,102,0.05);
     }
 
-    .controls strong { color: var(--bb-blue); }
+    .controls strong {
+      color: var(--bb-blue);
+    }
 
     .btn-row {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
     button {
       border: none;
       border-radius: 999px;
       padding: 12px 18px;
-      font-size: 1rem;
-      font-weight: 800;
+      font-size: 0.9rem;
+      line-height: 1.2;
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
@@ -169,9 +200,9 @@
     button:active { transform: translateY(1px); }
 
     .primary-btn {
-      background: var(--bb-blue);
+      background: linear-gradient(135deg, var(--bb-blue), var(--bb-blue-2));
       color: white;
-      box-shadow: 0 12px 24px rgba(0,53,102,0.24);
+      box-shadow: 0 12px 24px rgba(0,53,102,0.22);
     }
 
     .secondary-btn {
@@ -181,36 +212,47 @@
     }
 
     .game-shell {
-      padding: 16px;
-      position: relative;
-      min-height: 720px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .top-bar {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
       gap: 12px;
-      padding: 8px 6px 16px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 2px 4px 0;
+    }
+
+    .chip-group {
+      display: flex;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
-    .top-bar .chip {
+    .chip {
       border-radius: 999px;
       padding: 10px 14px;
-      font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 0.68rem;
       background: rgba(0, 53, 102, 0.06);
+      color: var(--bb-blue);
+      box-shadow: inset 0 0 0 1px rgba(0,53,102,0.08);
     }
 
     .canvas-wrap {
       position: relative;
       width: 100%;
-      height: 640px;
+      aspect-ratio: 16 / 10;
+      min-height: 520px;
+      max-height: 78vh;
       border-radius: 24px;
       overflow: hidden;
-      background: linear-gradient(180deg, #ffffff 0%, #eff7ff 100%);
+      background: #7fd6ff;
       border: 2px solid rgba(0,53,102,0.08);
+      box-shadow: inset 0 0 0 4px rgba(255,255,255,0.15);
       touch-action: none;
     }
 
@@ -218,6 +260,8 @@
       width: 100%;
       height: 100%;
       display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
 
     .overlay {
@@ -226,10 +270,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 22px;
-      background: rgba(255,255,255,0.74);
-      backdrop-filter: blur(10px);
-      text-align: center;
+      padding: 20px;
+      background: rgba(5, 24, 42, 0.34);
+      backdrop-filter: blur(4px);
       transition: opacity 0.2s ease;
     }
 
@@ -239,41 +282,52 @@
     }
 
     .overlay-card {
-      max-width: 520px;
-      background: rgba(255,255,255,0.95);
+      width: min(560px, 100%);
+      background: rgba(255,255,255,0.96);
       border-radius: 24px;
-      padding: 28px 24px;
-      box-shadow: var(--shadow);
+      padding: 26px 22px;
+      box-shadow: 0 24px 54px rgba(0,0,0,0.18);
       border: 1px solid rgba(0,53,102,0.08);
+      text-align: center;
     }
 
     .overlay-card h2 {
       margin: 0 0 10px;
+      font-size: clamp(1.2rem, 2.8vw, 1.9rem);
+      line-height: 1.3;
       color: var(--bb-blue);
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
     }
 
     .overlay-card p {
       margin: 0 0 16px;
-      color: var(--bb-dark);
-      line-height: 1.55;
+      line-height: 1.6;
+      color: #304252;
     }
 
-    @media (max-width: 920px) {
-      .app { grid-template-columns: 1fr; }
-      .game-shell { min-height: auto; }
-      .canvas-wrap { height: min(72vh, 620px); }
+    .tiny-note {
+      font-size: 0.8rem;
+      color: #506171;
     }
 
-    @media (max-width: 560px) {
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+      .canvas-wrap {
+        min-height: 440px;
+      }
+    }
+
+    @media (max-width: 620px) {
       body { padding: 10px; }
       .panel, .game-shell { border-radius: 18px; }
       .panel { padding: 16px; }
       .game-shell { padding: 10px; }
-      .canvas-wrap { height: 72vh; border-radius: 18px; }
+      .canvas-wrap { border-radius: 18px; min-height: 360px; aspect-ratio: 9 / 11; }
       .stat-grid { grid-template-columns: 1fr; }
-      .top-bar { padding-bottom: 10px; }
-      .top-bar .chip { width: 100%; text-align: center; }
+      .chip-group { width: 100%; }
+      .chip { width: 100%; text-align: center; }
+      h1 { font-size: 1.55rem; }
     }
   </style>
 </head>
@@ -287,24 +341,24 @@
 
       <div class="stat-grid">
         <div class="stat blue">
-          <h2>Heildarsparnaður</h2>
+          <h3>Heildarsparnaður</h3>
           <div id="totalSavings" class="stat-value">0 kr.</div>
         </div>
         <div class="stat green">
-          <h2>Neyðarsjóður</h2>
+          <h3>Neyðarsjóður</h3>
           <div id="emergencySavings" class="stat-value">0 / 100.000 kr.</div>
         </div>
         <div class="stat yellow">
-          <h2>Umframsparnaður</h2>
+          <h3>Umframsparnaður</h3>
           <div id="extraSavings" class="stat-value">0 kr.</div>
         </div>
         <div class="stat purple">
-          <h2>Líf eftir</h2>
+          <h3>Líf eftir</h3>
           <div id="lives" class="stat-value">3</div>
         </div>
       </div>
 
-      <div>
+      <div class="meter-wrap">
         <div class="meter"><div id="fundMeter" class="meter-fill"></div></div>
         <div id="meterLabel" class="meter-label">Markmið: byggja neyðarsjóð upp í 100.000 kr. áður en umframsparnaður byrjar að safnast.</div>
       </div>
@@ -314,8 +368,8 @@
       </div>
 
       <div class="controls">
-        <strong>Stýring:</strong> Færðu Skúla með mús, fingri eða örvatökkum. <br>
-        <strong>Markmið:</strong> Safna krónum í neyðarsjóð og svo umframsparnað. <br>
+        <strong>Stýring:</strong> Færðu Skúla með mús, fingri eða örvatökkum.<br>
+        <strong>Markmið:</strong> Safna krónum í neyðarsjóð og svo umframsparnað.<br>
         <strong>Forðastu:</strong> Greiðsludreifingu, yfirdrátt, smálán, kaupa núna, borga síðar og bílalán. Tapast 3 líf þá lýkur leiknum.
       </div>
 
@@ -327,12 +381,16 @@
 
     <section class="game-shell">
       <div class="top-bar">
-        <div id="speedChip" class="chip">Hraði: 1</div>
-        <div id="statusChip" class="chip">Staða: Að byggja neyðarsjóð</div>
+        <div class="chip-group">
+          <div id="speedChip" class="chip">Hraði: 1</div>
+          <div id="statusChip" class="chip">Staða: Að byggja neyðarsjóð</div>
+        </div>
+        <div class="tiny-note">Pixel-style útgáfa • virkar á síma og tölvu</div>
       </div>
 
       <div id="canvasWrap" class="canvas-wrap">
-        <canvas id="gameCanvas" width="760" height="640" aria-label="Leiksvæði"></canvas>
+        <canvas id="gameCanvas" aria-label="Leiksvæði"></canvas>
+
         <div id="startOverlay" class="overlay">
           <div class="overlay-card">
             <h2>Hjálpaðu Skúla við að hafa það betra</h2>
@@ -340,6 +398,7 @@
             <button id="overlayStartBtn" class="primary-btn">Spila núna</button>
           </div>
         </div>
+
         <div id="gameOverOverlay" class="overlay hidden">
           <div class="overlay-card">
             <h2>Leik lokið</h2>
@@ -354,7 +413,7 @@
   <script>
     (() => {
       const canvas = document.getElementById('gameCanvas');
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d', { alpha: false });
       const canvasWrap = document.getElementById('canvasWrap');
 
       const totalSavingsEl = document.getElementById('totalSavings');
@@ -375,26 +434,26 @@
       const overlayStartBtn = document.getElementById('overlayStartBtn');
       const overlayRestartBtn = document.getElementById('overlayRestartBtn');
 
-      const palette = {
-        blue: '#003566',
-        green: '#274E13',
-        yellow: '#F5CC00',
-        purple: '#741B47',
-        dark: '#343A40',
-        pink: '#FFCAE4',
-        violet: '#8C52FF',
-        white: '#FFFFFF',
-        red: '#c63d3d'
-      };
+      const VIRTUAL_WIDTH = 384;
+      const VIRTUAL_HEIGHT = 240;
+      const offscreen = document.createElement('canvas');
+      offscreen.width = VIRTUAL_WIDTH;
+      offscreen.height = VIRTUAL_HEIGHT;
+      const octx = offscreen.getContext('2d', { alpha: false });
+      octx.imageSmoothingEnabled = false;
+      ctx.imageSmoothingEnabled = false;
+
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      let audioReady = false;
 
       const emergencyTarget = 100000;
       const coinValues = [1000, 5000, 10000];
       const debtTypes = [
-        { name: 'Greiðsludreifing', color: '#741B47' },
-        { name: 'Yfirdráttur', color: '#c63d3d' },
-        { name: 'Kaupa núna, borga síðar', color: '#0a5c9f' },
-        { name: 'Smálán', color: '#343A40' },
-        { name: 'Bílalán', color: '#8C52FF' }
+        { name: 'Greiðsludreifing', short: 'GD', color: '#8d2144' },
+        { name: 'Yfirdráttur', short: 'YF', color: '#ad2c2c' },
+        { name: 'Kaupa núna, borga síðar', short: 'BN', color: '#7f235f' },
+        { name: 'Smálán', short: 'SL', color: '#592a9a' },
+        { name: 'Bílalán', short: 'BL', color: '#4a2374' }
       ];
 
       const positiveMessages = [
@@ -414,8 +473,8 @@
       const warningMessages = {
         'Greiðsludreifing': 'Varúð — greiðsludreifing getur gert kaup miklu dýrari en þau virðast í fyrstu.',
         'Yfirdráttur': 'Varúð — yfirdráttur getur verið afar dýr ef illa gengur að hrista hann af sér.',
-        'Smálán': 'Varúð - neyslulán kosta kannski meira en þú heldur. Hefur þú litið á árlega hlutfallstölu kostnaðar (ÁHK) lána?',
         'Kaupa núna, borga síðar': 'Varúð — að kaupa núna og borga síðar getur auðveldlega leitt til skulda sem safnast hratt upp.',
+        'Smálán': 'Varúð - neyslulán kosta kannski meira en þú heldur. Hefur þú litið á árlega hlutfallstölu kostnaðar (ÁHK) lána?',
         'Bílalán': 'Ekki taka lán fyrir bíl. Safnaðu frekar með reglubundnum hætti svo hægt sé að staðgreiða hentuga bifreið. Of dýrir bílar geta verið ein helsta fyrirstaða þess að við getum náð okkar fjárhagslegu markmiðum.'
       };
 
@@ -438,26 +497,49 @@
         extraSavings: 0,
         lives: 3,
         level: 1,
+        cameraTime: 0,
         keys: { left: false, right: false },
         player: {
-          x: 0,
-          y: 0,
-          width: 92,
-          height: 92,
-          speed: 500
+          x: VIRTUAL_WIDTH / 2 - 13,
+          y: VIRTUAL_HEIGHT - 46,
+          width: 26,
+          height: 34,
+          speed: 150,
+          bob: 0
         }
       };
 
-      function resizeCanvas() {
-        const rect = canvasWrap.getBoundingClientRect();
-        const ratio = window.devicePixelRatio || 1;
-        canvas.width = Math.floor(rect.width * ratio);
-        canvas.height = Math.floor(rect.height * ratio);
-        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-        canvas.style.width = rect.width + 'px';
-        canvas.style.height = rect.height + 'px';
-        state.player.y = rect.height - state.player.height - 18;
-        state.player.x = Math.min(state.player.x || (rect.width - state.player.width) / 2, rect.width - state.player.width);
+      function resumeAudio() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        audioReady = true;
+      }
+
+      function playTone(type, frequency, duration, volume, secondFrequency) {
+        if (!audioReady) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(frequency, now);
+        if (secondFrequency) osc.frequency.exponentialRampToValueAtTime(secondFrequency, now + duration);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function coinSound() {
+        playTone('square', 780, 0.08, 0.03, 1180);
+      }
+
+      function hitSound() {
+        playTone('sawtooth', 180, 0.18, 0.04, 90);
+      }
+
+      function gameOverSound() {
+        playTone('triangle', 280, 0.32, 0.04, 120);
       }
 
       function formatISK(value) {
@@ -477,9 +559,7 @@
         emergencySavingsEl.textContent = `${new Intl.NumberFormat('is-IS').format(state.emergencySavings)} / ${new Intl.NumberFormat('is-IS').format(emergencyTarget)} kr.`;
         extraSavingsEl.textContent = formatISK(state.extraSavings);
         livesEl.textContent = String(state.lives);
-
-        const progress = Math.min(100, (state.emergencySavings / emergencyTarget) * 100);
-        fundMeterEl.style.width = progress + '%';
+        fundMeterEl.style.width = Math.min(100, (state.emergencySavings / emergencyTarget) * 100) + '%';
         speedChipEl.textContent = `Hraði: ${state.level}`;
 
         if (state.emergencySavings >= emergencyTarget) {
@@ -491,46 +571,54 @@
         }
       }
 
+      function resizeCanvas() {
+        const rect = canvasWrap.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(rect.width * ratio);
+        canvas.height = Math.floor(rect.height * ratio);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+      }
+
       function createCoin() {
         const value = randomFrom(coinValues);
-        const width = value === 10000 ? 74 : value === 5000 ? 68 : 62;
-        const rect = canvasWrap.getBoundingClientRect();
         return {
           kind: 'coin',
           value,
-          x: Math.random() * Math.max(20, rect.width - width - 10),
-          y: -90,
-          width,
-          height: width,
-          speed: 140 + Math.random() * 90 + state.level * 18,
-          color: value === 10000 ? '#f5cc00' : value === 5000 ? '#ffd95a' : '#ffe88f'
+          x: 12 + Math.random() * (VIRTUAL_WIDTH - 28),
+          y: -20,
+          width: 12,
+          height: 12,
+          speed: 40 + Math.random() * 20 + state.level * 5,
+          spin: Math.random() * Math.PI * 2,
+          collected: false
         };
       }
 
       function createDebt() {
         const debt = randomFrom(debtTypes);
-        const width = debt.name.length > 18 ? 150 : 124;
-        const height = debt.name.length > 18 ? 62 : 52;
-        const rect = canvasWrap.getBoundingClientRect();
+        const width = debt.name.length > 12 ? 40 : 34;
         return {
           kind: 'debt',
-          label: debt.name,
           debtName: debt.name,
-          x: Math.random() * Math.max(20, rect.width - width - 10),
-          y: -90,
+          short: debt.short,
+          color: debt.color,
+          x: 8 + Math.random() * (VIRTUAL_WIDTH - width - 16),
+          y: -24,
           width,
-          height,
-          speed: 170 + Math.random() * 110 + state.level * 22,
-          color: debt.color
+          height: 16,
+          speed: 46 + Math.random() * 22 + state.level * 6,
+          pulse: Math.random() * Math.PI * 2
         };
       }
 
       function spawnItem() {
-        const isCoin = Math.random() < 0.72;
-        state.items.push(isCoin ? createCoin() : createDebt());
+        const coinChance = 0.72;
+        state.items.push(Math.random() < coinChance ? createCoin() : createDebt());
       }
 
       function awardCoin(item) {
+        coinSound();
         state.totalSavings += item.value;
         if (state.emergencySavings < emergencyTarget) {
           const needed = emergencyTarget - state.emergencySavings;
@@ -547,6 +635,7 @@
       }
 
       function hitDebt(item) {
+        hitSound();
         state.lives -= 1;
         setMessage(warningMessages[item.debtName] || 'Varúð — þessi skuld getur sett strik í reikninginn.');
         updateHud();
@@ -569,9 +658,8 @@
         state.extraSavings = 0;
         state.lives = 3;
         state.level = 1;
-        const rect = canvasWrap.getBoundingClientRect();
-        state.player.x = (rect.width - state.player.width) / 2;
-        state.player.y = rect.height - state.player.height - 18;
+        state.cameraTime = 0;
+        state.player.x = VIRTUAL_WIDTH / 2 - state.player.width / 2;
         updateHud();
         setMessage('Jæja, hefjumst nú handa! Gríptu krónurnar, forðastu skuldir og hjálpaðu Skúla að hafa það betra fjárhagslega.');
         gameOverOverlay.classList.add('hidden');
@@ -580,6 +668,7 @@
       }
 
       function startGame() {
+        resumeAudio();
         if (state.running) return;
         if (state.gameOver) resetGame();
         state.running = true;
@@ -591,26 +680,27 @@
       }
 
       function endGame() {
+        gameOverSound();
         state.running = false;
         state.gameOver = true;
-        const lokaskilabod = 'Vel gert! Þessar litlu ákvarðanir geta haft risastór áhrif á fjárhaginn þinn. Haltu þig frá skuldum og hafðu það gott!';
-        const summary = `Þú safnaðir samtals ${formatISK(state.totalSavings)}. Þar af fóru ${formatISK(state.emergencySavings)} í neyðarsjóð og ${formatISK(state.extraSavings)} í umframsparnað. ${lokaskilabod}`;
-        gameOverText.textContent = summary;
-        setMessage(lokaskilabod);
+        const ending = 'Vel gert! Þessar litlu ákvarðanir geta haft risastór áhrif á fjárhaginn þinn. Haltu þig frá skuldum og hafðu það gott!';
+        gameOverText.textContent = `Þú safnaðir samtals ${formatISK(state.totalSavings)}. Þar af fóru ${formatISK(state.emergencySavings)} í neyðarsjóð og ${formatISK(state.extraSavings)} í umframsparnað. ${ending}`;
+        setMessage(ending);
         gameOverOverlay.classList.remove('hidden');
       }
 
       function update(dt) {
-        const rect = canvasWrap.getBoundingClientRect();
         state.elapsed += dt;
         state.spawnTimer += dt;
-        state.level = Math.min(9, 1 + Math.floor(state.elapsed / 12));
+        state.cameraTime += dt;
+        state.player.bob += dt * 8;
+        state.level = Math.min(9, 1 + Math.floor(state.elapsed / 10));
 
         if (state.keys.left) state.player.x -= state.player.speed * dt;
         if (state.keys.right) state.player.x += state.player.speed * dt;
-        state.player.x = Math.max(0, Math.min(rect.width - state.player.width, state.player.x));
+        state.player.x = Math.max(4, Math.min(VIRTUAL_WIDTH - state.player.width - 4, state.player.x));
 
-        const spawnEvery = Math.max(0.38, 0.95 - (state.level - 1) * 0.06);
+        const spawnEvery = Math.max(0.42, 0.95 - (state.level - 1) * 0.06);
         if (state.spawnTimer >= spawnEvery) {
           state.spawnTimer = 0;
           spawnItem();
@@ -619,170 +709,228 @@
         for (let i = state.items.length - 1; i >= 0; i--) {
           const item = state.items[i];
           item.y += item.speed * dt;
+          if (item.kind === 'coin') item.spin += dt * 16;
+          else item.pulse += dt * 6;
 
-          if (rectsIntersect(item, state.player)) {
-            if (item.kind === 'coin') awardCoin(item);
-            else hitDebt(item);
+          const playerHitbox = {
+            x: state.player.x + 3,
+            y: state.player.y + 4,
+            width: state.player.width - 6,
+            height: state.player.height - 4
+          };
+
+          if (rectsIntersect(item, playerHitbox)) {
+            item.kind === 'coin' ? awardCoin(item) : hitDebt(item);
             state.items.splice(i, 1);
             continue;
           }
 
-          if (item.y > rect.height + 90) state.items.splice(i, 1);
+          if (item.y > VIRTUAL_HEIGHT + 24) {
+            state.items.splice(i, 1);
+          }
         }
       }
 
-      function drawBackground(width, height) {
-        const gradient = ctx.createLinearGradient(0, 0, 0, height);
-        gradient.addColorStop(0, '#ffffff');
-        gradient.addColorStop(1, '#eef7ff');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
+      function clearSky() {
+        octx.fillStyle = '#35b7ff';
+        octx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        octx.fillStyle = '#7edcff';
+        octx.fillRect(0, 88, VIRTUAL_WIDTH, 36);
+      }
 
-        for (let i = 0; i < 6; i++) {
-          ctx.beginPath();
-          ctx.fillStyle = i % 2 === 0 ? 'rgba(245,204,0,0.09)' : 'rgba(140,82,255,0.08)';
-          ctx.arc((width / 6) * i + 60, 80 + (i % 2) * 40, 36 + (i % 3) * 10, 0, Math.PI * 2);
-          ctx.fill();
+      function drawPixelCloud(x, y, s) {
+        const px = Math.round(x), py = Math.round(y);
+        octx.fillStyle = '#e9fbff';
+        fillRect(px + 4*s, py + 2*s, 12*s, 3*s);
+        fillRect(px + 1*s, py + 4*s, 18*s, 3*s);
+        fillRect(px + 6*s, py, 6*s, 4*s);
+      }
+
+      function drawMountain(x, baseY, width, height, body, snow, edgeOffset = 0) {
+        octx.fillStyle = body;
+        octx.beginPath();
+        octx.moveTo(x, baseY);
+        octx.lineTo(x + width/2, baseY - height);
+        octx.lineTo(x + width, baseY);
+        octx.closePath();
+        octx.fill();
+        octx.fillStyle = snow;
+        octx.beginPath();
+        octx.moveTo(x + width/2 - 8 + edgeOffset, baseY - height + 18);
+        octx.lineTo(x + width/2, baseY - height + 4);
+        octx.lineTo(x + width/2 + 10 + edgeOffset, baseY - height + 18);
+        octx.closePath();
+        octx.fill();
+      }
+
+      function drawParallaxBackground() {
+        clearSky();
+
+        const t = state.cameraTime;
+        drawPixelCloud(18 + (t * 2 % 40), 16, 1);
+        drawPixelCloud(118 - (t * 1.3 % 46), 30, 1);
+        drawPixelCloud(254 + (t * 1.8 % 50), 16, 1);
+
+        const farOffset = (t * 2) % 64;
+        drawMountain(-30 - farOffset, 150, 96, 72, '#74859d', '#f1fbff');
+        drawMountain(40 - farOffset, 150, 86, 60, '#6b7791', '#f1fbff', -2);
+        drawMountain(108 - farOffset, 150, 82, 68, '#7b8399', '#f1fbff');
+        drawMountain(180 - farOffset, 150, 102, 82, '#6f7b94', '#f1fbff', 1);
+        drawMountain(265 - farOffset, 150, 92, 64, '#78879f', '#f1fbff', -1);
+        drawMountain(326 - farOffset, 150, 88, 74, '#687994', '#f1fbff');
+
+        octx.fillStyle = '#d7f2ff';
+        octx.beginPath();
+        octx.moveTo(220, 150);
+        octx.lineTo(278, 150);
+        octx.lineTo(256, 182);
+        octx.lineTo(204, 182);
+        octx.closePath();
+        octx.fill();
+
+        const midOffset = (t * 5) % 48;
+        for (let i = -1; i < 8; i++) {
+          drawPine(i * 54 - midOffset + 8, 162, i % 2 === 0 ? 1 : 2);
         }
 
-        ctx.fillStyle = 'rgba(0,53,102,0.08)';
-        ctx.fillRect(0, height - 70, width, 70);
+        octx.fillStyle = '#70c85c';
+        octx.fillRect(0, 176, VIRTUAL_WIDTH, 12);
+        octx.fillStyle = '#49a63a';
+        for (let i = 0; i < VIRTUAL_WIDTH; i += 8) {
+          octx.fillRect(i, 176, 4, 2);
+        }
+
+        octx.fillStyle = '#4aa4f0';
+        octx.fillRect(0, 188, VIRTUAL_WIDTH, 52);
+        octx.fillStyle = '#3488cf';
+        for (let i = 0; i < VIRTUAL_WIDTH; i += 16) {
+          octx.fillRect(i, 188 + (i / 16) % 2, 8, 2);
+        }
+
+        octx.fillStyle = '#8f6a49';
+        octx.fillRect(0, 192, VIRTUAL_WIDTH, 48);
+        octx.fillStyle = '#6f4f34';
+        for (let x = 0; x < VIRTUAL_WIDTH; x += 16) {
+          for (let y = 192; y < 240; y += 16) {
+            octx.fillRect(x, y, 15, 15);
+            octx.clearRect(x + 7, y + 7, 2, 2);
+          }
+        }
+      }
+
+      function drawPine(x, baseY, scale = 1) {
+        const w = 8 * scale;
+        const h = 14 * scale;
+        fillRect(x + 3 * scale, baseY - 4 * scale, 2 * scale, 4 * scale, '#5f3b22');
+        octx.fillStyle = '#1d6d3c';
+        octx.beginPath();
+        octx.moveTo(x, baseY - 1 * scale);
+        octx.lineTo(x + w/2, baseY - h);
+        octx.lineTo(x + w, baseY - 1 * scale);
+        octx.closePath();
+        octx.fill();
+        octx.fillStyle = '#2ca852';
+        fillRect(x + 2 * scale, baseY - h + 3 * scale, 2 * scale, 2 * scale);
+      }
+
+      function fillRect(x, y, w, h, color) {
+        octx.fillStyle = color;
+        octx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+      }
+
+      function drawCoin(item) {
+        const x = Math.round(item.x);
+        const y = Math.round(item.y);
+        const frame = Math.floor(item.spin) % 4;
+        const widthMap = [8, 6, 4, 6];
+        const w = widthMap[frame];
+        const offset = (12 - w) / 2;
+        fillRect(x + offset, y + 1, w, 10, '#b87c00');
+        fillRect(x + offset, y, w, 10, '#ffd94a');
+        if (w >= 6) {
+          fillRect(x + offset + 1, y + 1, w - 2, 2, '#fff3ad');
+          fillRect(x + offset + 1, y + 7, w - 2, 1, '#e2af00');
+        }
+        if (w >= 6) fillRect(x + offset + Math.floor(w/2) - 1, y + 3, 2, 4, '#e1a600');
+      }
+
+      function drawDebt(item) {
+        const x = Math.round(item.x);
+        const y = Math.round(item.y);
+        const glow = Math.sin(item.pulse) > 0 ? '#ff738c' : '#ff5576';
+        for (let i = 0; i < item.width; i += 6) {
+          fillRect(x + i, y - 3, 3, 3, glow);
+        }
+        fillRect(x, y, item.width, item.height, '#2a0f1d');
+        fillRect(x + 1, y + 1, item.width - 2, item.height - 2, item.color);
+        fillRect(x + 2, y + 2, item.width - 4, 3, '#d96e92');
+        for (let i = 1; i < item.width - 4; i += 6) {
+          octx.fillStyle = '#f6d2dc';
+          octx.beginPath();
+          octx.moveTo(x + i, y + item.height);
+          octx.lineTo(x + i + 2, y + item.height + 4);
+          octx.lineTo(x + i + 4, y + item.height);
+          octx.closePath();
+          octx.fill();
+        }
+        octx.fillStyle = '#fff6f8';
+        octx.font = '6px Silkscreen';
+        octx.textAlign = 'center';
+        octx.fillText(item.short, x + item.width / 2, y + 10.5);
       }
 
       function drawPlayer() {
         const p = state.player;
-        const centerX = p.x + p.width / 2;
-        const centerY = p.y + p.height / 2;
+        const x = Math.round(p.x);
+        const y = Math.round(p.y + Math.sin(p.bob) * 1.2);
 
-        ctx.save();
-        ctx.translate(centerX, centerY);
+        fillRect(x + 9, y + 28, 4, 5, '#5f3c25');
+        fillRect(x + 14, y + 28, 4, 5, '#5f3c25');
+        fillRect(x + 8, y + 20, 5, 9, '#274E13');
+        fillRect(x + 14, y + 20, 5, 9, '#274E13');
 
-        ctx.fillStyle = 'rgba(0, 53, 102, 0.12)';
-        ctx.beginPath();
-        ctx.ellipse(0, 34, 28, 8, 0, 0, Math.PI * 2);
-        ctx.fill();
+        fillRect(x + 7, y + 12, 13, 10, '#d9d9d9');
+        fillRect(x + 8, y + 13, 11, 8, '#f1f1f1');
+        fillRect(x + 10, y + 15, 2, 2, '#5a6774');
+        fillRect(x + 14, y + 15, 2, 2, '#5a6774');
+        fillRect(x + 12, y + 18, 2, 2, '#5a6774');
 
-        ctx.strokeStyle = palette.blue;
-        ctx.lineWidth = 6;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(-10, 20);
-        ctx.lineTo(-14, 42);
-        ctx.moveTo(10, 20);
-        ctx.lineTo(14, 42);
-        ctx.stroke();
+        fillRect(x + 5, y + 14, 3, 7, '#f2c29e');
+        fillRect(x + 20, y + 14, 3, 7, '#f2c29e');
+        fillRect(x + 4, y + 19, 4, 2, '#3c6fb0');
+        fillRect(x + 20, y + 19, 4, 2, '#3c6fb0');
 
-        ctx.fillStyle = palette.blue;
-        roundRect(ctx, -20, -4, 40, 30, 12, true);
-
-        ctx.strokeStyle = '#1b4f82';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(-18, 6);
-        ctx.lineTo(-28, 18);
-        ctx.moveTo(18, 6);
-        ctx.lineTo(28, 18);
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffd7b3';
-        ctx.beginPath();
-        ctx.arc(0, -18, 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = palette.green;
-        ctx.beginPath();
-        ctx.arc(0, -22, 18, Math.PI, 0, false);
-        ctx.fill();
-        roundRect(ctx, -6, -42, 12, 10, 4, true);
-        ctx.fillStyle = '#3b6e20';
-        ctx.beginPath();
-        ctx.ellipse(10, -18, 14, 5, -0.15, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = palette.dark;
-        ctx.beginPath();
-        ctx.arc(-6, -18, 1.6, 0, Math.PI * 2);
-        ctx.arc(6, -18, 1.6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(52,58,64,0.75)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, -11, 6, 0.2, Math.PI - 0.2);
-        ctx.stroke();
-
-        ctx.fillStyle = palette.yellow;
-        ctx.beginPath();
-        ctx.arc(0, 10, 7, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = palette.blue;
-        ctx.font = 'bold 10px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('kr', 0, 13);
-
-        ctx.restore();
+        fillRect(x + 8, y + 5, 11, 8, '#f2c29e');
+        fillRect(x + 8, y + 3, 11, 3, '#8b4e34');
+        fillRect(x + 7, y + 1, 13, 4, '#2567c7');
+        fillRect(x + 18, y + 2, 6, 2, '#1e54a0');
+        fillRect(x + 16, y + 4, 8, 2, '#1e54a0');
+        fillRect(x + 11, y + 2, 4, 2, '#ffffff');
+        fillRect(x + 12, y + 2, 2, 2, '#d72828');
+        fillRect(x + 8, y + 8, 2, 2, '#1b1b1b');
+        fillRect(x + 16, y + 8, 2, 2, '#1b1b1b');
+        fillRect(x + 12, y + 10, 2, 1, '#d66f5d');
       }
 
-      function drawCoin(item) {
-        const cx = item.x + item.width / 2;
-        const cy = item.y + item.height / 2;
-        const r = item.width / 2;
-        ctx.save();
-        const grad = ctx.createRadialGradient(cx - r * 0.25, cy - r * 0.3, r * 0.2, cx, cy, r);
-        grad.addColorStop(0, '#fff7c7');
-        grad.addColorStop(0.45, item.color);
-        grad.addColorStop(1, '#d19b00');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#c48a00';
-        ctx.stroke();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-        ctx.beginPath();
-        ctx.arc(cx, cy, r - 7, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.fillStyle = palette.blue;
-        ctx.font = `bold ${item.value === 10000 ? 15 : item.value === 5000 ? 14 : 13}px Arial`;
-        ctx.textAlign = 'center';
-        const label = item.value === 1000 ? '1 þús.' : item.value === 5000 ? '5 þús.' : '10 þús.';
-        ctx.fillText(label, cx, cy + 5);
-        ctx.restore();
-      }
-
-      function drawDebt(item) {
-        ctx.save();
-        ctx.fillStyle = item.color;
-        roundRect(ctx, item.x, item.y, item.width, item.height, 18, true);
-        ctx.fillStyle = 'rgba(255,255,255,0.18)';
-        roundRect(ctx, item.x + 8, item.y + 8, item.width - 16, item.height - 16, 12, true);
-        ctx.fillStyle = palette.white;
-        ctx.font = item.label.length > 18 ? 'bold 11px Arial' : 'bold 13px Arial';
-        ctx.textAlign = 'center';
-        drawWrappedText(item.label, item.x + item.width / 2, item.y + 24, item.width - 18, 14, 2);
-        ctx.restore();
-      }
-
-      function drawHudOnCanvas(width) {
-        ctx.fillStyle = 'rgba(0,53,102,0.06)';
-        roundRect(ctx, 16, 14, Math.min(width - 32, 340), 42, 16, true);
-        ctx.fillStyle = palette.blue;
-        ctx.font = 'bold 16px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(`Safnað: ${formatISK(state.totalSavings)}`, 30, 40);
+      function drawCanvasHud() {
+        fillRect(6, 6, 118, 14, 'rgba(0,53,102,0.75)');
+        fillRect(8, 8, 114, 10, '#f7fbff');
+        octx.fillStyle = '#003566';
+        octx.font = '6px Silkscreen';
+        octx.textAlign = 'left';
+        octx.fillText(`Safnað: ${new Intl.NumberFormat('is-IS').format(state.totalSavings)} kr.`, 12, 15);
       }
 
       function draw() {
-        const rect = canvasWrap.getBoundingClientRect();
-        ctx.clearRect(0, 0, rect.width, rect.height);
-        drawBackground(rect.width, rect.height);
-        drawHudOnCanvas(rect.width);
+        drawParallaxBackground();
+        drawCanvasHud();
         for (const item of state.items) {
-          if (item.kind === 'coin') drawCoin(item);
-          else drawDebt(item);
+          item.kind === 'coin' ? drawCoin(item) : drawDebt(item);
         }
         drawPlayer();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
       }
 
       function loop(timestamp) {
@@ -795,40 +943,10 @@
         if (state.running) requestAnimationFrame(loop);
       }
 
-      function roundRect(ctx, x, y, width, height, radius, fill) {
-        const r = Math.min(radius, width / 2, height / 2);
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + width, y, x + width, y + height, r);
-        ctx.arcTo(x + width, y + height, x, y + height, r);
-        ctx.arcTo(x, y + height, x, y, r);
-        ctx.arcTo(x, y, x + width, y, r);
-        ctx.closePath();
-        if (fill) ctx.fill();
-      }
-
-      function drawWrappedText(text, centerX, startY, maxWidth, lineHeight, maxLines = 2) {
-        const words = text.split(' ');
-        const lines = [];
-        let current = '';
-        for (const word of words) {
-          const test = current ? current + ' ' + word : word;
-          if (ctx.measureText(test).width <= maxWidth || !current) current = test;
-          else {
-            lines.push(current);
-            current = word;
-          }
-        }
-        if (current) lines.push(current);
-        lines.slice(0, maxLines).forEach((line, index) => {
-          ctx.fillText(line, centerX, startY + index * lineHeight);
-        });
-      }
-
       function pointerMove(clientX) {
         const rect = canvasWrap.getBoundingClientRect();
-        const x = clientX - rect.left - state.player.width / 2;
-        state.player.x = Math.max(0, Math.min(rect.width - state.player.width, x));
+        const x = ((clientX - rect.left) / rect.width) * VIRTUAL_WIDTH - state.player.width / 2;
+        state.player.x = Math.max(4, Math.min(VIRTUAL_WIDTH - state.player.width - 4, x));
       }
 
       canvasWrap.addEventListener('mousemove', (e) => pointerMove(e.clientX));
@@ -839,12 +957,12 @@
         if (e.key === 'ArrowLeft') state.keys.left = true;
         if (e.key === 'ArrowRight') state.keys.right = true;
       });
-
       window.addEventListener('keyup', (e) => {
         if (e.key === 'ArrowLeft') state.keys.left = false;
         if (e.key === 'ArrowRight') state.keys.right = false;
       });
 
+      [startBtn, restartBtn, overlayStartBtn, overlayRestartBtn].forEach(btn => btn.addEventListener('click', resumeAudio));
       startBtn.addEventListener('click', startGame);
       restartBtn.addEventListener('click', resetGame);
       overlayStartBtn.addEventListener('click', startGame);
