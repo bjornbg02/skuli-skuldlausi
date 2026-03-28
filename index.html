@@ -1,1047 +1,204 @@
 <!DOCTYPE html>
 <html lang="is">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Skúli skuldlausi</title>
-  <style>
-    :root {
-      --bg: #dff4ff;
-      --panel: rgba(255,255,255,0.9);
-      --panel-strong: rgba(255,255,255,0.96);
-      --line: rgba(0,53,102,0.16);
-      --blue: #003566;
-      --blue-2: #0f6db0;
-      --green: #2f7d32;
-      --gold: #f5cc00;
-      --red: #8f1733;
-      --red-2: #c42f51;
-      --text: #17324d;
-      --muted: #5d748c;
-      --shadow: 0 12px 34px rgba(0, 53, 102, 0.14);
-      --radius: 22px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skúli skuldlausi</title>
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background:
-        radial-gradient(circle at top, #f9feff 0%, #dff3ff 40%, #b8e8ff 100%);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      overflow: hidden;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 
-    .app {
-      width: min(100vw, 520px);
-      height: 100dvh;
-      display: grid;
-      grid-template-rows: auto auto 1fr auto;
-      gap: 10px;
-      padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) 12px;
-    }
+<style>
+body {
+  margin:0;
+  font-family: 'Inter', sans-serif;
+  background:#e9eef5;
+}
 
-    .topbar {
-      background: linear-gradient(180deg, var(--panel-strong), rgba(255,255,255,0.88));
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      padding: 14px 16px 12px;
-      backdrop-filter: blur(10px);
-    }
+.wrapper {
+  max-width:420px;
+  margin:auto;
+  padding:16px;
+}
 
-    .title {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 8px;
-    }
+h1 {
+  margin:0;
+  font-weight:700;
+  color:#1f2f5b;
+}
 
-    h1 {
-      margin: 0;
-      font-size: clamp(1.4rem, 3.5vw, 1.8rem);
-      line-height: 1.06;
-      letter-spacing: -0.03em;
-      color: var(--blue);
-      font-weight: 900;
-    }
+.subtitle {
+  color:#5b6b7a;
+  margin-bottom:16px;
+}
 
-    .subtitle {
-      margin-top: 6px;
-      font-size: 0.95rem;
-      line-height: 1.35;
-      color: var(--muted);
-      font-weight: 600;
-    }
+.stats {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
 
-    .hud {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 12px;
-    }
+.card {
+  background:#fff;
+  border-radius:14px;
+  padding:10px;
+  font-weight:700;
+}
 
-    .stat {
-      background: linear-gradient(180deg, #ffffff, #f5fbff);
-      border: 1px solid rgba(0,53,102,0.1);
-      border-radius: 16px;
-      padding: 10px 12px;
-      min-height: 64px;
-      display: grid;
-      align-content: center;
-    }
+canvas {
+  width:100%;
+  background:#6cb3ff;
+  border-radius:16px;
+  margin-top:12px;
+}
 
-    .label {
-      font-size: 0.76rem;
-      font-weight: 800;
-      color: #54708a;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
+.controls {
+  display:flex;
+  justify-content:space-between;
+  margin-top:12px;
+}
 
-    .value {
-      margin-top: 2px;
-      font-size: 1rem;
-      font-weight: 900;
-      color: var(--blue);
-      line-height: 1.15;
-      word-break: break-word;
-    }
+.btn {
+  width:45%;
+  padding:16px;
+  border-radius:14px;
+  background:#2d4ea3;
+  color:white;
+  text-align:center;
+  font-weight:700;
+}
 
-    .statusbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(180deg, var(--panel-strong), rgba(255,255,255,0.88));
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 10px 12px;
-      box-shadow: var(--shadow);
-      font-size: 0.9rem;
-      font-weight: 800;
-    }
+.overlay {
+  position:absolute;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,0.6);
+}
 
-    .stage-wrap {
-      position: relative;
-      border-radius: 26px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 53, 102, 0.20);
-      border: 1px solid rgba(255,255,255,0.72);
-      background: linear-gradient(180deg, #8bd2ff, #dff7ff);
-      min-height: 0;
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      touch-action: none;
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      background: linear-gradient(180deg, rgba(8,29,55,0.22), rgba(8,29,55,0.36));
-    }
-
-    .card {
-      width: min(100%, 420px);
-      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,251,255,0.98));
-      border: 1px solid rgba(0,53,102,0.12);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: 0 18px 48px rgba(0, 28, 55, 0.22);
-    }
-
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 1.4rem;
-      line-height: 1.1;
-      color: var(--blue);
-    }
-
-    .card p {
-      margin: 0 0 14px;
-      font-size: 1rem;
-      line-height: 1.45;
-      color: #35506b;
-      font-weight: 600;
-    }
-
-    .message-box {
-      background: rgba(255,255,255,0.94);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 14px;
-      box-shadow: var(--shadow);
-      font-size: 0.98rem;
-      line-height: 1.45;
-      font-weight: 700;
-      color: #28435c;
-      min-height: 82px;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 10px;
-      align-items: stretch;
-    }
-
-    .btn, .control-btn {
-      border: none;
-      border-radius: 18px;
-      min-height: 56px;
-      font-family: inherit;
-      font-weight: 900;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .btn:active, .control-btn:active { transform: translateY(1px) scale(0.99); }
-
-    .btn.primary {
-      background: linear-gradient(180deg, #0064b7, #003566);
-      color: white;
-      box-shadow: 0 10px 24px rgba(0, 53, 102, 0.28);
-      width: 100%;
-    }
-
-    .control-btn {
-      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(237,246,255,0.98));
-      color: var(--blue);
-      border: 1px solid rgba(0,53,102,0.1);
-      box-shadow: var(--shadow);
-      font-size: 1.25rem;
-      user-select: none;
-    }
-
-    .center-note {
-      display: grid;
-      place-items: center;
-      font-size: 0.82rem;
-      color: var(--muted);
-      font-weight: 800;
-      text-align: center;
-      padding: 0 4px;
-    }
-
-    .desktop-note {
-      display: none;
-    }
-
-    @media (min-width: 700px) {
-      body { align-items: center; padding: 12px; }
-      .app {
-        height: min(920px, 100dvh - 24px);
-        border-radius: 28px;
-      }
-      .desktop-note { display: inline; }
-    }
-  </style>
+.overlay-content {
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  text-align:center;
+}
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <section class="topbar">
-      <div class="title">
-        <h1>Skúli skuldlausi</h1>
-      </div>
-      <div class="subtitle">Léttur og skemmtilegur leikur þar sem þú safnar sparnaði, kemur þér upp neyðarsjóði og forðast neyslulán.</div>
-      <div class="hud">
-        <div class="stat"><div class="label">Heildarsparnaður</div><div class="value" id="totalValue">0 kr.</div></div>
-        <div class="stat"><div class="label">Líf eftir</div><div class="value" id="livesValue">3</div></div>
-        <div class="stat"><div class="label">Neyðarsjóður</div><div class="value" id="fundValue">0 / 100.000 kr.</div></div>
-        <div class="stat"><div class="label">Umframsparnaður</div><div class="value" id="extraValue">0 kr.</div></div>
-      </div>
-    </section>
+<div class="wrapper">
+  <h1>Skúli skuldlausi</h1>
+  <div class="subtitle">Safnaðu krónum og forðastu skuldir</div>
 
-    <section class="statusbar">
-      <div id="statusText">Staða: Að byggja neyðarsjóð</div>
-      <div id="speedText">Hraði: 1</div>
-    </section>
-
-    <section class="stage-wrap">
-      <canvas id="gameCanvas"></canvas>
-      <div class="overlay" id="startOverlay">
-        <div class="card">
-          <h2>Hjálpaðu Skúla við að hafa það betra</h2>
-          <p>Gríptu krónurnar til að byggja neyðarsjóðinn upp í 100.000 kr. Eftir það breytist hver safnað króna í umframsparnað. Passaðu þig á skuldunum!</p>
-          <button class="btn primary" id="startButton">Spila núna</button>
-        </div>
-      </div>
-      <div class="overlay" id="gameOverOverlay" hidden>
-        <div class="card">
-          <h2>Leik lokið</h2>
-          <p id="gameOverText"></p>
-          <button class="btn primary" id="restartButton">Spila aftur</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="message-box" id="messageBox">Jæja, hefjumst nú handa! Gríptu krónurnar, forðastu skuldir og hjálpaðu Skúla að hafa það betra fjárhagslega.</section>
-
-    <section class="controls">
-      <button class="control-btn" id="leftButton" aria-label="Færa til vinstri">◀</button>
-      <div class="center-note">Snertu hnappana eða strjúktu. <span class="desktop-note">Þú getur líka notað örvatakkana.</span></div>
-      <button class="control-btn" id="rightButton" aria-label="Færa til hægri">▶</button>
-    </section>
+  <div class="stats">
+    <div class="card">💰 <span id="score">0</span> kr.</div>
+    <div class="card">❤️ <span id="lives">3</span></div>
   </div>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d', { alpha: false });
+  <canvas id="game"></canvas>
 
-    const totalValue = document.getElementById('totalValue');
-    const livesValue = document.getElementById('livesValue');
-    const fundValue = document.getElementById('fundValue');
-    const extraValue = document.getElementById('extraValue');
-    const statusText = document.getElementById('statusText');
-    const speedText = document.getElementById('speedText');
-    const messageBox = document.getElementById('messageBox');
-    const startOverlay = document.getElementById('startOverlay');
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    const gameOverText = document.getElementById('gameOverText');
-    const startButton = document.getElementById('startButton');
-    const restartButton = document.getElementById('restartButton');
-    const leftButton = document.getElementById('leftButton');
-    const rightButton = document.getElementById('rightButton');
-    const stageWrap = document.querySelector('.stage-wrap');
+  <div class="controls">
+    <div class="btn" onclick="move(-1)">⬅️</div>
+    <div class="btn" onclick="move(1)">➡️</div>
+  </div>
+</div>
 
-    const WORLD_W = 400;
-    const WORLD_H = 700;
-    const FUND_TARGET = 100000;
-    const COIN_VALUES = [1000, 5000, 10000];
-    const maxLives = 3;
+<div class="overlay" id="overlay">
+  <div class="overlay-content">
+    <h2>Leik lokið</h2>
+    <button onclick="restart()">Spila aftur</button>
+  </div>
+</div>
 
-    const positiveMessages = [
-      'Vel gert! Þú bættir {amount} við neyðarsjóðinn, jókst öryggi þitt og dróst úr líkum á skuldasöfnun.',
-      'Frábært! Sparnaður gerir okkur kleift að takast betur á við sveiflur og eykir fyrirsjáanleika í heimilisbókhaldinu.',
-      'Vel gert! Hver króna í varasjóð getur hjálpað þér að forðast rándýr neyslulán þegar eitthvað kemur upp á.',
-      'Þarna þekki ég þig! Hver króna skiptir máli!'
-    ];
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-    const extraMessages = [
-      'Glæsilegt! Nú ætti Skúli að vera kominn með þokkalegan neyðarsjóð og fer að safna fyrir því sem framundan er!',
-      'Vel gert! Er þetta kannski sparnaður fyrir jólum eða ferðalögum?',
-      'Snilld! Umframsparnaður eykur sveigjanleika, en það er gott að honum fylgi sparnaðarmarkmið.',
-      'Sterkt! Nú er neyðarsjóðurinn klár og sparnaður farinn að hrannast upp'
-    ];
+canvas.width = 400;
+canvas.height = 500;
 
-    const adviceMessages = [
-      'Með því að greiða aukalega inn á lán getur þú bæði sparað þér stórfé og stytt lánstímann.',
-      'Neyðarsjóður getur hjálpað þér að takast á við óvænt útgjöld án þess að grípa í rándýr neyslulán.',
-      'Það er bara ein töfralausn í sparnaði: Að hann sé sjálfvirkur og reglulegur.',
-      'Sólarhringsreglan getur reynst vel til að hemja hvatvís innkaup. Ekki kaupa þessi föt strax, líttu aftur á þau á morgun.'
-    ];
+let player = {x:180,y:440,w:40,h:40};
+let coins = [];
+let debts = [];
 
-    const debtTypes = [
-      {
-        name: 'Greiðsludreifing',
-        warning: 'Varúð — greiðsludreifing getur gert kaup miklu dýrari en þau virðast í fyrstu.',
-        colorA: '#7f1231',
-        colorB: '#c42f51'
-      },
-      {
-        name: 'Yfirdráttur',
-        warning: 'Varúð — yfirdráttur getur verið afar dýr ef illa gengur að hrista hann af sér.',
-        colorA: '#742a2a',
-        colorB: '#da5b5b'
-      },
-      {
-        name: 'Kaupa núna, borga síðar',
-        warning: 'Varúð — að kaupa núna og borga síðar getur auðveldlega leitt til skulda sem safnast hratt upp.',
-        colorA: '#5c1d3c',
-        colorB: '#b43865'
-      },
-      {
-        name: 'Smálán',
-        warning: 'Varúð - neyslulán kosta kannski meira en þú heldur. Hefur þú litið á árlega hlutfallstölu kostnaðar (ÁHK) lána?',
-        colorA: '#5f1235',
-        colorB: '#dc3062'
-      },
-      {
-        name: 'Bílalán',
-        warning: 'Ekki taka lán fyrir bíl. Safnaðu frekar með reglubundnum hætti svo hægt sé að staðgreiða hentuga bifreið. Of dýrir bílar geta verið ein helsta fyrirstaða þess að við getum náð okkar fjárhagslegu markmiðum.',
-        colorA: '#6b211d',
-        colorB: '#de5d3c'
-      }
-    ];
+let score = 0;
+let lives = 3;
 
-    const state = {
-      running: false,
-      lastTime: 0,
-      spawnClock: 0,
-      messageClock: 0,
-      total: 0,
-      fund: 0,
-      extra: 0,
-      lives: maxLives,
-      speedLevel: 1,
-      player: { x: WORLD_W / 2 - 28, y: WORLD_H - 108, w: 56, h: 84, vx: 0 },
-      objects: [],
-      keys: { left: false, right: false },
-      touchDir: 0,
-      pointerActive: false,
-      bgShift: 0
-    };
+function spawn() {
+  coins.push({x:Math.random()*360,y:0});
+  if(Math.random()<0.3) debts.push({x:Math.random()*360,y:0});
+}
 
-    function fmtISK(n) {
-      return `${n.toLocaleString('is-IS')} kr.`;
+function drawPlayer() {
+  ctx.fillStyle="#1f2f5b";
+  ctx.fillRect(player.x,player.y,player.w,player.h);
+}
+
+function drawCoin(c) {
+  ctx.fillStyle="gold";
+  ctx.beginPath();
+  ctx.arc(c.x,c.y,10,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawDebt(d) {
+  ctx.fillStyle="red";
+  ctx.fillRect(d.x,d.y,20,20);
+}
+
+function update() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  drawPlayer();
+
+  coins.forEach((c,i)=>{
+    c.y+=3;
+    drawCoin(c);
+
+    if(Math.abs(c.x-player.x)<30 && Math.abs(c.y-player.y)<30){
+      score+=1000;
+      coins.splice(i,1);
     }
+  });
 
-    function setMessage(text) {
-      messageBox.textContent = text;
-      state.messageClock = 4.8;
+  debts.forEach((d,i)=>{
+    d.y+=4;
+    drawDebt(d);
+
+    if(Math.abs(d.x-player.x)<30 && Math.abs(d.y-player.y)<30){
+      lives--;
+      debts.splice(i,1);
     }
+  });
 
-    function updateHud() {
-      totalValue.textContent = fmtISK(state.total);
-      livesValue.textContent = String(state.lives);
-      fundValue.textContent = `${state.fund.toLocaleString('is-IS')} / ${FUND_TARGET.toLocaleString('is-IS')} kr.`;
-      extraValue.textContent = fmtISK(state.extra);
-      statusText.textContent = state.fund >= FUND_TARGET ? 'Staða: Umframsparnaður í gangi' : 'Staða: Að byggja neyðarsjóð';
-      speedText.textContent = `Hraði: ${state.speedLevel}`;
-    }
+  document.getElementById("score").innerText=score;
+  document.getElementById("lives").innerText=lives;
 
-    function resizeCanvas() {
-      const rect = stageWrap.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      ctx.setTransform(canvas.width / WORLD_W, 0, 0, canvas.height / WORLD_H, 0, 0);
-      ctx.imageSmoothingEnabled = false;
-    }
+  if(lives<=0){
+    document.getElementById("overlay").style.display="flex";
+    return;
+  }
 
-    function rand(min, max) {
-      return Math.random() * (max - min) + min;
-    }
+  requestAnimationFrame(update);
+}
 
-    function choice(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
+function move(dir){
+  player.x += dir*30;
+  player.x = Math.max(0,Math.min(360,player.x));
+}
 
-    function spawnObject() {
-      const coinChance = 0.72;
-      if (Math.random() < coinChance) {
-        const value = choice(COIN_VALUES);
-        const size = value === 1000 ? 20 : value === 5000 ? 24 : 28;
-        state.objects.push({
-          kind: 'coin',
-          value,
-          x: rand(22, WORLD_W - 50),
-          y: -40,
-          w: size,
-          h: size,
-          vy: rand(72, 116) + state.speedLevel * 10,
-          spin: rand(0, Math.PI * 2)
-        });
-      } else {
-        const debt = choice(debtTypes);
-        const width = debt.name.length > 12 ? 108 : 84;
-        state.objects.push({
-          kind: 'debt',
-          debt,
-          x: rand(14, WORLD_W - width - 14),
-          y: -66,
-          w: width,
-          h: 44,
-          vy: rand(88, 126) + state.speedLevel * 14,
-          pulse: rand(0, Math.PI * 2)
-        });
-      }
-    }
+function restart(){
+  score=0;
+  lives=3;
+  coins=[];
+  debts=[];
+  document.getElementById("overlay").style.display="none";
+  update();
+}
 
-    function hitTest(a, b) {
-      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-    }
+setInterval(spawn,1000);
+update();
+</script>
 
-    function playSound(type) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      if (!playSound.ctx) playSound.ctx = new AudioCtx();
-      const audio = playSound.ctx;
-      if (audio.state === 'suspended') audio.resume();
-
-      const now = audio.currentTime;
-      const o = audio.createOscillator();
-      const g = audio.createGain();
-      o.connect(g);
-      g.connect(audio.destination);
-
-      if (type === 'coin') {
-        o.type = 'square';
-        o.frequency.setValueAtTime(760, now);
-        o.frequency.exponentialRampToValueAtTime(1020, now + 0.08);
-        g.gain.setValueAtTime(0.05, now);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
-        o.start(now);
-        o.stop(now + 0.1);
-      } else if (type === 'hit') {
-        o.type = 'sawtooth';
-        o.frequency.setValueAtTime(170, now);
-        o.frequency.exponentialRampToValueAtTime(90, now + 0.14);
-        g.gain.setValueAtTime(0.07, now);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-        o.start(now);
-        o.stop(now + 0.17);
-      } else if (type === 'gameover') {
-        o.type = 'triangle';
-        o.frequency.setValueAtTime(320, now);
-        o.frequency.exponentialRampToValueAtTime(120, now + 0.38);
-        g.gain.setValueAtTime(0.08, now);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
-        o.start(now);
-        o.stop(now + 0.42);
-      }
-    }
-
-    function collectCoin(obj) {
-      state.total += obj.value;
-      if (state.fund < FUND_TARGET) {
-        const before = state.fund;
-        state.fund = Math.min(FUND_TARGET, state.fund + obj.value);
-        const overflow = Math.max(0, before + obj.value - FUND_TARGET);
-        state.extra += overflow;
-        const template = state.fund >= FUND_TARGET && overflow > 0 ? choice(extraMessages) : choice(positiveMessages);
-        setMessage(template.replace('{amount}', fmtISK(obj.value)));
-      } else {
-        state.extra += obj.value;
-        setMessage(choice(extraMessages));
-      }
-      state.speedLevel = Math.min(9, 1 + Math.floor(state.total / 30000));
-      updateHud();
-      playSound('coin');
-    }
-
-    function hitDebt(obj) {
-      state.lives -= 1;
-      setMessage(obj.debt.warning || 'Varúð — þessi skuld getur sett strik í reikninginn.');
-      updateHud();
-      playSound(state.lives <= 0 ? 'gameover' : 'hit');
-      if (state.lives <= 0) {
-        endGame();
-      }
-    }
-
-    function resetGame() {
-      state.running = false;
-      state.lastTime = 0;
-      state.spawnClock = 0;
-      state.messageClock = 0;
-      state.total = 0;
-      state.fund = 0;
-      state.extra = 0;
-      state.lives = maxLives;
-      state.speedLevel = 1;
-      state.player.x = WORLD_W / 2 - 28;
-      state.objects = [];
-      state.bgShift = 0;
-      updateHud();
-      messageBox.textContent = 'Jæja, hefjumst nú handa! Gríptu krónurnar, forðastu skuldir og hjálpaðu Skúla að hafa það betra fjárhagslega.';
-    }
-
-    function startGame() {
-      resetGame();
-      state.running = true;
-      startOverlay.hidden = true;
-      gameOverOverlay.hidden = true;
-      requestAnimationFrame(loop);
-      setMessage(choice(adviceMessages));
-      if (playSound.ctx && playSound.ctx.state === 'suspended') playSound.ctx.resume();
-    }
-
-    function endGame() {
-      state.running = false;
-      gameOverText.textContent = `Þú safnaðir samtals ${fmtISK(state.total)}. Þar af fóru ${fmtISK(state.fund)} í neyðarsjóð og ${fmtISK(state.extra)} í umframsparnað. Vel gert! Þessar litlu ákvarðanir geta haft risastór áhrif á fjárhaginn þinn. Haltu þig frá skuldum og hafðu það gott!`;
-      gameOverOverlay.hidden = false;
-    }
-
-    function update(dt) {
-      const moveSpeed = 180 + state.speedLevel * 10;
-      const dir = (state.keys.left ? -1 : 0) + (state.keys.right ? 1 : 0) + state.touchDir;
-      state.player.x += dir * moveSpeed * dt;
-      state.player.x = Math.max(10, Math.min(WORLD_W - state.player.w - 10, state.player.x));
-
-      state.spawnClock += dt;
-      state.bgShift += dt * (8 + state.speedLevel * 0.8);
-      const spawnEvery = Math.max(0.42, 0.88 - state.speedLevel * 0.04);
-      while (state.spawnClock >= spawnEvery) {
-        state.spawnClock -= spawnEvery;
-        spawnObject();
-      }
-
-      const playerBox = {
-        x: state.player.x + 6,
-        y: state.player.y + 10,
-        w: state.player.w - 12,
-        h: state.player.h - 6,
-      };
-
-      for (let i = state.objects.length - 1; i >= 0; i--) {
-        const obj = state.objects[i];
-        obj.y += obj.vy * dt;
-        if (obj.kind === 'coin') obj.spin += dt * 8;
-        if (obj.kind === 'debt') obj.pulse += dt * 5;
-        if (hitTest(playerBox, obj)) {
-          if (obj.kind === 'coin') collectCoin(obj);
-          else hitDebt(obj);
-          state.objects.splice(i, 1);
-          continue;
-        }
-        if (obj.y > WORLD_H + 90) {
-          state.objects.splice(i, 1);
-        }
-      }
-
-      if (state.messageClock > 0) {
-        state.messageClock -= dt;
-        if (state.messageClock <= 0) {
-          messageBox.textContent = state.fund >= FUND_TARGET
-            ? 'Neyðarsjóður kominn í 100.000 kr. Allt sem þú safnar núna er umframsparnaður.'
-            : choice(adviceMessages);
-        }
-      }
-    }
-
-    function drawSkyAndMountains() {
-      const t = state.bgShift;
-      // sky
-      const sky = ctx.createLinearGradient(0, 0, 0, WORLD_H);
-      sky.addColorStop(0, '#3bb5ff');
-      sky.addColorStop(0.52, '#77d8ff');
-      sky.addColorStop(1, '#dff7ff');
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, WORLD_W, WORLD_H);
-
-      // clouds
-      drawCloud(38, 66, 1.0);
-      drawCloud(140, 88, 0.88);
-      drawCloud(276, 64, 0.96);
-      drawCloud(330, 108, 0.78);
-
-      // ocean band
-      ctx.fillStyle = '#89defa';
-      ctx.fillRect(0, 232, WORLD_W, 22);
-      ctx.fillStyle = '#6bcceb';
-      ctx.fillRect(0, 254, WORLD_W, 20);
-
-      // far mountains
-      drawMountain(20 - (t * 0.2 % 20), 312, 118, 120, '#6b7f9b', '#e9f4ff', '#4b627d');
-      drawMountain(100 - (t * 0.24 % 18), 332, 92, 96, '#7a889f', '#f1f8ff', '#5a677d');
-      drawMountain(155 - (t * 0.16 % 14), 326, 112, 112, '#646d85', '#ff8a67', '#484e66');
-      drawMountain(246 - (t * 0.22 % 20), 340, 98, 92, '#77859d', '#ecf6ff', '#5d6e87');
-      drawMountain(312 - (t * 0.28 % 22), 320, 128, 122, '#687c97', '#edf6ff', '#4d6077');
-
-      // glacier
-      ctx.fillStyle = '#eafcff';
-      ctx.beginPath();
-      ctx.moveTo(225, 362);
-      ctx.lineTo(256, 334);
-      ctx.lineTo(280, 342);
-      ctx.lineTo(268, 392);
-      ctx.lineTo(238, 392);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = '#d1f2ff';
-      ctx.fillRect(236, 364, 26, 26);
-
-      // hills
-      drawHill(-20 - (t * 0.4 % 24), 444, 150, 72, '#78cf63', '#4e9b47');
-      drawHill(74 - (t * 0.45 % 20), 454, 170, 66, '#8ad96f', '#5dac51');
-      drawHill(220 - (t * 0.5 % 18), 458, 184, 74, '#86d761', '#54a44b');
-
-      // trees and sheep
-      for (let i = 0; i < 6; i++) {
-        drawPine((36 + i * 58 - (t * 0.8 % 28) + WORLD_W) % (WORLD_W + 34) - 10, 432 + (i % 2) * 8, 1 + (i % 2) * 0.08);
-      }
-      drawTree(18 - (t * 0.7 % 32), 428, 1.06);
-      drawTree(352 - (t * 0.72 % 36), 432, 0.98);
-      drawSheep(292 - (t * 0.55 % 18), 446);
-      drawSheep(318 - (t * 0.55 % 18), 438);
-      drawSheep(340 - (t * 0.55 % 18), 448);
-
-      // platform ground
-      ctx.fillStyle = '#54b44f';
-      ctx.fillRect(0, WORLD_H - 130, WORLD_W, 18);
-      ctx.fillStyle = '#245f32';
-      for (let x = 0; x < WORLD_W; x += 12) ctx.fillRect(x, WORLD_H - 112, 8, 4);
-      ctx.fillStyle = '#8e623d';
-      ctx.fillRect(0, WORLD_H - 112, WORLD_W, 58);
-      for (let x = 0; x < WORLD_W; x += 20) {
-        for (let y = WORLD_H - 110; y < WORLD_H - 58; y += 18) {
-          ctx.fillStyle = ((x / 20 + y / 18) % 2) ? '#936744' : '#7e5839';
-          ctx.fillRect(x, y, 18, 16);
-        }
-      }
-      ctx.fillStyle = '#7ad0f7';
-      ctx.fillRect(0, WORLD_H - 54, WORLD_W, 54);
-    }
-
-    function drawCloud(x, y, scale) {
-      const w = 44 * scale;
-      const h = 16 * scale;
-      ctx.fillStyle = 'rgba(255,255,255,0.95)';
-      pixelRoundRect(x, y, w, h, 6 * scale);
-      pixelRoundRect(x + 8 * scale, y - 10 * scale, 16 * scale, 14 * scale, 6 * scale);
-      pixelRoundRect(x + 20 * scale, y - 7 * scale, 18 * scale, 12 * scale, 6 * scale);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(206,236,255,0.9)';
-      ctx.fillRect(x + 6 * scale, y + h - 2 * scale, 26 * scale, 2 * scale);
-    }
-
-    function pixelRoundRect(x, y, w, h, r) {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.lineTo(x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.lineTo(x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.lineTo(x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.closePath();
-    }
-
-    function drawMountain(x, y, w, h, body, snow, shadow) {
-      ctx.fillStyle = body;
-      ctx.beginPath();
-      ctx.moveTo(x, y + h);
-      ctx.lineTo(x + w * 0.5, y);
-      ctx.lineTo(x + w, y + h);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = shadow;
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.5, y);
-      ctx.lineTo(x + w * 0.74, y + h);
-      ctx.lineTo(x + w, y + h);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = snow;
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.38, y + h * 0.18);
-      ctx.lineTo(x + w * 0.5, y);
-      ctx.lineTo(x + w * 0.62, y + h * 0.18);
-      ctx.lineTo(x + w * 0.56, y + h * 0.22);
-      ctx.lineTo(x + w * 0.5, y + h * 0.14);
-      ctx.lineTo(x + w * 0.44, y + h * 0.22);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    function drawHill(x, y, w, h, colorTop, colorBottom) {
-      ctx.fillStyle = colorBottom;
-      ctx.beginPath();
-      ctx.moveTo(x, y + h);
-      ctx.quadraticCurveTo(x + w * 0.34, y - h * 0.2, x + w, y + h);
-      ctx.lineTo(x + w, y + h + 26);
-      ctx.lineTo(x, y + h + 26);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = colorTop;
-      ctx.beginPath();
-      ctx.moveTo(x + 4, y + h - 10);
-      ctx.quadraticCurveTo(x + w * 0.35, y - h * 0.18, x + w - 4, y + h - 10);
-      ctx.lineTo(x + w - 4, y + h + 8);
-      ctx.lineTo(x + 4, y + h + 8);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    function drawPine(x, y, scale) {
-      ctx.fillStyle = '#4d2f1d';
-      ctx.fillRect(x + 7 * scale, y + 28 * scale, 6 * scale, 18 * scale);
-      ctx.fillStyle = '#1d6f3b';
-      triangle(x + 10 * scale, y, x + 1 * scale, y + 18 * scale, x + 19 * scale, y + 18 * scale);
-      triangle(x + 10 * scale, y + 8 * scale, x, y + 28 * scale, x + 20 * scale, y + 28 * scale);
-      triangle(x + 10 * scale, y + 18 * scale, x - 1 * scale, y + 40 * scale, x + 21 * scale, y + 40 * scale);
-    }
-
-    function drawTree(x, y, scale) {
-      ctx.fillStyle = '#6d4328';
-      ctx.fillRect(x + 18 * scale, y + 28 * scale, 8 * scale, 26 * scale);
-      ctx.fillStyle = '#2e8b43';
-      pixelRoundRect(x + 6 * scale, y + 8 * scale, 32 * scale, 28 * scale, 8 * scale);
-      ctx.fill();
-      pixelRoundRect(x + 2 * scale, y + 18 * scale, 28 * scale, 22 * scale, 8 * scale);
-      ctx.fill();
-      pixelRoundRect(x + 16 * scale, y + 14 * scale, 30 * scale, 24 * scale, 8 * scale);
-      ctx.fill();
-    }
-
-    function drawSheep(x, y) {
-      ctx.fillStyle = '#ffffff';
-      pixelRoundRect(x, y, 16, 11, 4);
-      ctx.fill();
-      ctx.fillStyle = '#596779';
-      ctx.fillRect(x + 13, y + 3, 5, 5);
-      ctx.fillRect(x + 3, y + 10, 2, 5);
-      ctx.fillRect(x + 10, y + 10, 2, 5);
-    }
-
-    function triangle(x1, y1, x2, y2, x3, y3) {
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.lineTo(x3, y3);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    function drawPlayer() {
-      const p = state.player;
-      const bob = Math.sin(state.bgShift * 0.18) * 1.2;
-      const x = Math.round(p.x);
-      const y = Math.round(p.y + bob);
-
-      // shadow
-      ctx.fillStyle = 'rgba(10,28,46,0.18)';
-      pixelRoundRect(x + 8, y + 76, 40, 8, 4);
-      ctx.fill();
-
-      // boots
-      ctx.fillStyle = '#6c4228';
-      ctx.fillRect(x + 11, y + 66, 12, 12);
-      ctx.fillRect(x + 33, y + 66, 12, 12);
-      ctx.fillStyle = '#8b5b3f';
-      ctx.fillRect(x + 10, y + 72, 14, 6);
-      ctx.fillRect(x + 32, y + 72, 14, 6);
-
-      // legs
-      ctx.fillStyle = '#29456f';
-      ctx.fillRect(x + 12, y + 48, 11, 20);
-      ctx.fillRect(x + 33, y + 48, 11, 20);
-      ctx.fillStyle = '#3b5e93';
-      ctx.fillRect(x + 12, y + 58, 11, 5);
-      ctx.fillRect(x + 33, y + 58, 11, 5);
-
-      // sweater
-      ctx.fillStyle = '#ddd8cb';
-      pixelRoundRect(x + 10, y + 24, 36, 28, 8);
-      ctx.fill();
-      ctx.fillStyle = '#6f6b73';
-      ctx.fillRect(x + 15, y + 28, 26, 2);
-      ctx.fillRect(x + 12, y + 34, 32, 2);
-      ctx.fillRect(x + 14, y + 40, 28, 2);
-      ctx.fillStyle = '#8a8790';
-      for (let i = 0; i < 4; i++) ctx.fillRect(x + 14 + i * 8, y + 30, 4, 4);
-      ctx.fillStyle = '#7c7a82';
-      ctx.fillRect(x + 18, y + 22, 20, 6);
-
-      // arms
-      ctx.fillStyle = '#ddd8cb';
-      ctx.fillRect(x + 4, y + 28, 8, 18);
-      ctx.fillRect(x + 44, y + 26, 8, 18);
-      ctx.fillStyle = '#f3b6a2';
-      ctx.fillRect(x + 3, y + 42, 8, 7);
-      ctx.fillRect(x + 45, y + 40, 8, 8);
-
-      // backpack strap
-      ctx.fillStyle = '#6f3e2e';
-      ctx.fillRect(x + 11, y + 24, 3, 22);
-      ctx.fillRect(x + 41, y + 24, 3, 22);
-
-      // neck
-      ctx.fillStyle = '#f1b09b';
-      ctx.fillRect(x + 24, y + 19, 8, 6);
-
-      // head
-      ctx.fillStyle = '#f3b6a2';
-      pixelRoundRect(x + 16, y + 6, 24, 20, 6);
-      ctx.fill();
-      ctx.fillStyle = '#6f3c2a';
-      ctx.fillRect(x + 18, y + 8, 20, 5);
-      ctx.fillStyle = '#18263f';
-      ctx.fillRect(x + 22, y + 16, 3, 3);
-      ctx.fillRect(x + 31, y + 16, 3, 3);
-      ctx.fillStyle = '#cf6b5d';
-      ctx.fillRect(x + 28, y + 18, 2, 3);
-      ctx.fillStyle = '#b95050';
-      ctx.fillRect(x + 24, y + 22, 9, 2);
-
-      // cap
-      ctx.fillStyle = '#0f4f9c';
-      pixelRoundRect(x + 14, y + 2, 28, 10, 4);
-      ctx.fill();
-      ctx.fillRect(x + 20, y + 10, 18, 4);
-      ctx.fillStyle = '#1f6fd1';
-      ctx.fillRect(x + 16, y + 4, 24, 3);
-      // iceland flag hint
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x + 26, y + 4, 7, 5);
-      ctx.fillRect(x + 28, y + 2, 3, 9);
-      ctx.fillStyle = '#d93845';
-      ctx.fillRect(x + 27, y + 4, 5, 3);
-      ctx.fillRect(x + 29, y + 2, 1, 8);
-    }
-
-    function drawCoin(obj) {
-      const x = Math.round(obj.x);
-      const y = Math.round(obj.y);
-      const r = obj.w / 2;
-      const squish = 0.84 + Math.abs(Math.sin(obj.spin)) * 0.16;
-      const w = obj.w * squish;
-      const left = x + (obj.w - w) / 2;
-      ctx.fillStyle = '#a86d00';
-      ctx.fillRect(left + 1, y + 2, w, obj.h - 2);
-      ctx.fillStyle = '#f9d648';
-      ctx.fillRect(left, y, w, obj.h - 2);
-      ctx.fillStyle = '#ffe982';
-      ctx.fillRect(left + 3, y + 3, Math.max(4, w - 6), obj.h - 8);
-      ctx.fillStyle = '#c78500';
-      ctx.fillRect(left + w * 0.5 - 2, y + 5, 4, obj.h - 10);
-      ctx.fillStyle = '#fff6c7';
-      ctx.fillRect(left + 4, y + 4, 3, 3);
-    }
-
-    function wrapLabel(text, maxChars) {
-      const words = text.split(' ');
-      const lines = [];
-      let line = '';
-      for (const word of words) {
-        const attempt = line ? `${line} ${word}` : word;
-        if (attempt.length > maxChars) {
-          if (line) lines.push(line);
-          line = word;
-        } else {
-          line = attempt;
-        }
-      }
-      if (line) lines.push(line);
-      return lines.slice(0, 2);
-    }
-
-    function drawDebt(obj) {
-      const x = Math.round(obj.x);
-      const y = Math.round(obj.y);
-      const pulse = 1 + Math.sin(obj.pulse) * 0.06;
-      const w = obj.w * pulse;
-      const h = obj.h * pulse;
-      const left = x - (w - obj.w) / 2;
-      const top = y - (h - obj.h) / 2;
-
-      ctx.fillStyle = 'rgba(132,23,51,0.18)';
-      pixelRoundRect(left - 4, top - 4, w + 8, h + 8, 8);
-      ctx.fill();
-
-      ctx.fillStyle = obj.debt.colorA;
-      pixelRoundRect(left, top, w, h, 8);
-      ctx.fill();
-      ctx.fillStyle = obj.debt.colorB;
-      ctx.fillRect(left + 4, top + 4, w - 8, 8);
-
-      // spikes
-      ctx.fillStyle = '#f2f7fb';
-      for (let i = 0; i < 5; i++) {
-        triangle(left + 8 + i * ((w - 20) / 4), top, left + 3 + i * ((w - 20) / 4), top - 8, left + 13 + i * ((w - 20) / 4), top - 8);
-        triangle(left + 8 + i * ((w - 20) / 4), top + h, left + 3 + i * ((w - 20) / 4), top + h + 8, left + 13 + i * ((w - 20) / 4), top + h + 8);
-      }
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '800 8px Inter, system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const lines = wrapLabel(obj.debt.name, obj.w > 90 ? 14 : 10);
-      if (lines.length === 1) {
-        ctx.fillText(lines[0], left + w / 2, top + h / 2 + 1);
-      } else {
-        ctx.fillText(lines[0], left + w / 2, top + h / 2 - 5);
-        ctx.fillText(lines[1], left + w / 2, top + h / 2 + 7);
-      }
-    }
-
-    function drawObjects() {
-      state.objects.forEach(obj => {
-        if (obj.kind === 'coin') drawCoin(obj);
-        else drawDebt(obj);
-      });
-    }
-
-    function draw() {
-      drawSkyAndMountains();
-      drawObjects();
-      drawPlayer();
-    }
-
-    function loop(ts) {
-      if (!state.running) {
-        draw();
-        return;
-      }
-      if (!state.lastTime) state.lastTime = ts;
-      const dt = Math.min(0.033, (ts - state.lastTime) / 1000);
-      state.lastTime = ts;
-      update(dt);
-      draw();
-      if (state.running) requestAnimationFrame(loop);
-    }
-
-    function setTouchDirFromX(clientX) {
-      const rect = canvas.getBoundingClientRect();
-      const x = clientX - rect.left;
-      if (x < rect.width * 0.42) state.touchDir = -1;
-      else if (x > rect.width * 0.58) state.touchDir = 1;
-      else state.touchDir = 0;
-    }
-
-    canvas.addEventListener('pointerdown', (e) => {
-      state.pointerActive = true;
-      setTouchDirFromX(e.clientX);
-      canvas.setPointerCapture?.(e.pointerId);
-    });
-    canvas.addEventListener('pointermove', (e) => {
-      if (!state.pointerActive) return;
-      setTouchDirFromX(e.clientX);
-    });
-    const clearPointer = () => { state.pointerActive = false; state.touchDir = 0; };
-    canvas.addEventListener('pointerup', clearPointer);
-    canvas.addEventListener('pointercancel', clearPointer);
-    canvas.addEventListener('pointerleave', clearPointer);
-
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') state.keys.left = true;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') state.keys.right = true;
-    });
-    window.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') state.keys.left = false;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') state.keys.right = false;
-    });
-
-    function bindHold(button, dir) {
-      const on = (e) => { e.preventDefault(); state.touchDir = dir; };
-      const off = (e) => { e.preventDefault(); if (state.touchDir === dir) state.touchDir = 0; };
-      button.addEventListener('pointerdown', on);
-      button.addEventListener('pointerup', off);
-      button.addEventListener('pointercancel', off);
-      button.addEventListener('pointerleave', off);
-      button.addEventListener('touchstart', on, { passive: false });
-      button.addEventListener('touchend', off, { passive: false });
-    }
-    bindHold(leftButton, -1);
-    bindHold(rightButton, 1);
-
-    startButton.addEventListener('click', startGame);
-    restartButton.addEventListener('click', startGame);
-    window.addEventListener('resize', resizeCanvas);
-
-    resizeCanvas();
-    updateHud();
-    draw();
-  </script>
 </body>
 </html>
